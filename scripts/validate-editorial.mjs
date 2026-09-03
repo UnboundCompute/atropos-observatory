@@ -13,6 +13,8 @@ for (const [id, record] of Object.entries(editorial)) {
   if (!ids.has(id)) errors.push(`${id}: not found in Atropos model pack`);
   if (!record.summary?.trim()) errors.push(`${id}: summary is required`);
   if (!record.safe_pattern?.trim()) errors.push(`${id}: safe_pattern is required`);
+  if (!record.unsafe_example?.trim() || !record.safe_example?.trim()) errors.push(`${id}: unsafe_example and safe_example are required`);
+  if (!Array.isArray(record.references) || record.references.length === 0) errors.push(`${id}: at least one reference is required`);
   for (const reference of record.references || []) { try { new URL(reference); } catch { errors.push(`${id}: invalid reference URL ${reference}`); } }
 }
 if (errors.length) { console.error(errors.join('\n')); process.exit(1); }

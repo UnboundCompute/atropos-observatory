@@ -11,4 +11,4 @@ Supported fields:
 - `references`: authoritative documentation or CWE links
 - `reviewed_at` / `applies_to`: editorial maintenance metadata
 
-Run `npm run check:content` before publishing. It verifies every editorial key exists in the current sibling Atropos checkout, required guidance is present, and reference URLs are valid.
+Run `npm run check:content` before publishing. It verifies every editorial key exists in the current sibling Atropos checkout, that each curated record has summary, safer guidance, paired examples, and at least one reference, and that reference URLs are valid.
