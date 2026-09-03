@@ -1,0 +1,5 @@
+'use client';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+type Item = { id:string; language:string; package?:string; type?:string; method:string; role:string; kind:string; slug:string };
+export default function Search() { const [q,setQ]=useState(''); const [items,setItems]=useState<Item[]>([]); useEffect(()=>{ fetch('/generated/search-index.json').then(r=>r.json()).then(setItems); },[]); const results=q.length>1?items.filter(e=>`${e.method} ${e.package||''} ${e.language} ${e.role}`.toLowerCase().includes(q.toLowerCase())).slice(0,6):[]; return <div className="search-wrap"><div className="search-box"><span>⌕</span><input aria-label="Search Atropos facts" value={q} onChange={e=>setQ(e.target.value)} placeholder="Search a symbol, package, or role" /><kbd>⌘ K</kbd></div>{results.length>0&&<div className="search-results">{results.map(e=><Link href={`/symbols/${e.slug}`} key={e.id}><span className={`dot dot-${e.role}`} /> <b>{e.method}</b><small>{e.language} · {e.package||'stdlib'} · {e.role}</small><i>↗</i></Link>)}</div>}</div> }
