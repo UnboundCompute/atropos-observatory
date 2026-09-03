@@ -1,3 +1,8 @@
 import Link from 'next/link';
 import catalog from '../../.generated/catalog.json';
-export default function Browse(){const roles=[...new Set(catalog.map(e=>e.role))];const langs=[...new Set(catalog.map(e=>e.language))];return <main><section className="hero browse"><div className="eyebrow">ATROPOS / CATALOG</div><h1>Every fact,<br/><i>in view.</i></h1><p className="lede">{catalog.length.toLocaleString()} verified model rows across {langs.length} languages. Search from the home page, or jump by semantic role.</p><div className="browse-links">{roles.map(role=><Link className="bezel" href={`/browse/${role}`} key={role}><div className="core"><div className={`role role-${role}`}>{role}</div><h3>{catalog.filter(e=>e.role===role).length}</h3><p>facts in this role</p><span className="arrow">↗</span></div></Link>)}</div></section></main>}
+
+export default function Browse() {
+  const roles = [...new Set(catalog.map((entry) => entry.role))];
+  const languages = [...new Set(catalog.map((entry) => entry.language))];
+  return <main><section className="catalog-intro"><h1>Browse by semantic role.</h1><p>{catalog.length.toLocaleString()} model facts across {languages.join(', ')}. A role describes how data enters, moves through, or reaches a security boundary.</p></section><section className="role-directory">{roles.map((role) => <Link href={`/browse/${role}`} key={role}><span className={`role role-${role}`}>{role}</span><strong>{catalog.filter((entry) => entry.role === role).length.toLocaleString()}</strong><p>{role === 'sink' ? 'Consumes data at a sensitive operation.' : role === 'source' ? 'Introduces data into the analysis.' : role === 'sanitizer' ? 'Transforms data under stated constraints.' : 'Carries or transforms data between access paths.'}</p><span className="open-label">Open register</span></Link>)}</section></main>;
+}

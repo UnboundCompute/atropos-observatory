@@ -13,7 +13,7 @@ Security engineers, CodeQL/Semgrep rule authors, application developers, and mai
 Next.js App Router with static export. The build ingests `../atropos/models/**/*.json`; generated catalog files are disposable build artifacts. Curated editorial overlays add explanation, examples, caveats, and links without copying model facts.
 
 ## Design direction
-Read mode with an instrument-panel feel: dark OLED canvas, editorial typography, exact semantic colors, generous whitespace, and quiet motion. Inherit the semantic palette and code typography from Lachesis Explorer while giving Observatory a calmer reference-reading rhythm.
+Read mode presented as a maintained security field manual: warm archival paper, near-black ink, safety red for action, and sparse semantic colors for model roles. Typography, rules, registers, and tables carry the hierarchy. The surface deliberately avoids SaaS glass, gradients, bento cards, decorative texture, and dashboard theatre.
 
 ## Constraints
 No backend, auth, or database. Canonical URL is configurable (default `https://atropos.unboundcompute.com`). Raw catalog pages are discoverable; only enriched pages are intended for broad SEO indexing at launch.
