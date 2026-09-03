@@ -1,8 +1,14 @@
 import './globals.css';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+import { IBM_Plex_Mono, IBM_Plex_Sans, Source_Serif_4 } from 'next/font/google';
 
-export const metadata = { title: 'Atropos Observatory — Security Semantics Index', description: 'Search exact source, sink, sanitizer, and summary facts from the Atropos model pack.' };
+const plexSans = IBM_Plex_Sans({ subsets: ['latin'], variable: '--font-plex-sans', display: 'swap' });
+const plexMono = IBM_Plex_Mono({ weight: ['400', '500'], subsets: ['latin'], variable: '--font-plex-mono', display: 'swap' });
+const sourceSerif = Source_Serif_4({ subsets: ['latin'], variable: '--font-source-serif', display: 'swap' });
+
+export const metadata: Metadata = { metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://atropos.unboundcompute.com'), title: 'Atropos Observatory — Security Semantics Index', description: 'Search exact source, sink, sanitizer, and summary facts from the Atropos model pack.' };
 
 export default function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><header className="site-header"><Link href="/" className="wordmark"><span className="monogram">AO</span><span><strong>Atropos</strong><small>Observatory</small></span></Link><nav aria-label="UnboundCompute network"><Link href="/browse">Index</Link><a href="https://trace.unboundcompute.com/">Casefiles</a><a href="https://security.unboundcompute.com/">Journal</a><a href="https://lachesis.unboundcompute.com/">Explorer</a><a href="https://github.com/UnboundCompute/atropos">Source</a></nav></header>{children}<footer><span>Atropos Core Models · CC-BY-4.0</span><span>UnboundCompute / Security semantics for static analysis</span></footer></body></html>;
+  return <html lang="en"><body className={`${plexSans.variable} ${plexMono.variable} ${sourceSerif.variable}`}><header className="site-header"><Link href="/" className="wordmark"><span className="monogram">AO</span><span><strong>Atropos</strong><small>Observatory</small></span></Link><nav aria-label="UnboundCompute network"><Link href="/browse">Index</Link><a href="https://trace.unboundcompute.com/">Casefiles</a><a href="https://security.unboundcompute.com/">Journal</a><a href="https://lachesis.unboundcompute.com/">Explorer</a><a href="https://github.com/UnboundCompute/atropos">Source</a></nav></header>{children}<footer><span>Atropos Core Models · CC-BY-4.0</span><span>UnboundCompute / Security semantics for static analysis</span></footer></body></html>;
 }

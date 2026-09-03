@@ -5,7 +5,8 @@ const root = path.resolve(process.env.ATROPOS_ROOT || '../atropos');
 const files = fs.readdirSync(path.join(root, 'models'), { recursive: true }).filter((f) => f.endsWith('.json'));
 const entries = files.flatMap((file) => {
   const parsed = JSON.parse(fs.readFileSync(path.join(root, 'models', file), 'utf8'));
-  return Array.isArray(parsed) ? parsed : (parsed.entries || []);
+  const rows = Array.isArray(parsed) ? parsed : (parsed.entries || []);
+  return rows.map((entry) => ({ ...entry, source_file: file }));
 });
 const slug = (e) => [e.language, e.package || 'stdlib', e.type || 'global', e.method].join('/').toLowerCase().replace(/[^a-z0-9/]+/g, '-');
 const catalog = entries.map((e) => ({ ...e, slug: slug(e) })).sort((a, b) => a.id.localeCompare(b.id));
