@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "prepare:data": "node scripts/build-catalog.mjs",
-    "build": "npm run prepare:data && next build",
+    "check:content": "node scripts/validate-editorial.mjs",
+    "build": "npm run prepare:data && npm run check:content && next build",
     "start": "next start",
     "lint": "next lint"
   },

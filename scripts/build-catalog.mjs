@@ -8,8 +8,11 @@ const entries = files.flatMap((file) => {
   const rows = Array.isArray(parsed) ? parsed : (parsed.entries || []);
   return rows.map((entry) => ({ ...entry, source_file: file }));
 });
-const slug = (e) => [e.language, e.package || 'stdlib', e.type || 'global', e.method].join('/').toLowerCase().replace(/[^a-z0-9/]+/g, '-');
-const catalog = entries.map((e) => ({ ...e, slug: slug(e) })).sort((a, b) => a.id.localeCompare(b.id));
+const baseSlug = (e) => [e.language, e.package || 'stdlib', e.type || 'global', e.method].join('/').toLowerCase().replace(/[^a-z0-9/]+/g, '-');
+const shortHash = (value) => { let hash = 5381; for (const char of value) hash = ((hash << 5) + hash) ^ char.charCodeAt(0); return (hash >>> 0).toString(36).slice(0, 6); };
+const symbolKey = (entry) => [entry.language, entry.package || 'stdlib', entry.type || 'global', entry.method].join('\u0000');
+const slugSymbols = entries.reduce((groups, entry) => { const slug = baseSlug(entry); const keys = groups.get(slug) || new Set(); keys.add(symbolKey(entry)); groups.set(slug, keys); return groups; }, new Map());
+const catalog = entries.map((entry) => { const slug = baseSlug(entry); const keys = slugSymbols.get(slug); return { ...entry, slug: keys.size > 1 ? `${slug}--${shortHash(symbolKey(entry))}` : slug }; }).sort((a, b) => a.id.localeCompare(b.id));
 const out = path.resolve('.generated');
 fs.rmSync(out, { recursive: true, force: true }); fs.mkdirSync(out, { recursive: true });
 const publicGenerated = path.resolve('public/generated');
