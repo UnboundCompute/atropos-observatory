@@ -11,7 +11,11 @@ const slug = (e) => [e.language, e.package || 'stdlib', e.type || 'global', e.me
 const catalog = entries.map((e) => ({ ...e, slug: slug(e) })).sort((a, b) => a.id.localeCompare(b.id));
 const out = path.resolve('.generated');
 fs.rmSync(out, { recursive: true, force: true }); fs.mkdirSync(out, { recursive: true });
+const publicGenerated = path.resolve('public/generated');
+fs.rmSync(publicGenerated, { recursive: true, force: true }); fs.mkdirSync(publicGenerated, { recursive: true });
 fs.writeFileSync(path.join(out, 'catalog.json'), JSON.stringify(catalog));
-fs.writeFileSync(path.join(out, 'search-index.json'), JSON.stringify(catalog.map(({ id, language, package: pkg, type, method, role, kind, slug }) => ({ id, language, package: pkg, type, method, role, kind, slug }))));
+const searchIndex = catalog.map(({ id, language, package: pkg, type, method, role, kind, slug }) => ({ id, language, package: pkg, type, method, role, kind, slug }));
+fs.writeFileSync(path.join(out, 'search-index.json'), JSON.stringify(searchIndex));
+fs.writeFileSync(path.join(publicGenerated, 'search-index.json'), JSON.stringify(searchIndex));
 fs.writeFileSync(path.join(out, 'stats.json'), JSON.stringify({ total: catalog.length, symbols: new Set(catalog.map((e) => `${e.language}:${e.package}:${e.type}:${e.method}`)).size, languages: [...new Set(catalog.map((e) => e.language))], version: '1.10.0' }));
 console.log(`Atropos Observatory: generated ${catalog.length} facts from ${root}`);
