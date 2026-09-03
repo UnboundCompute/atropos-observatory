@@ -1,0 +1,6 @@
+{
+  "javascript.childprocess.exec.a0": {"summary":"Executes a command through the host shell; treat user-controlled input as a command-injection boundary.","safe_pattern":"Prefer an argument-array API with a fixed executable and explicit allow-list."},
+  "python.pickle.load.a0": {"summary":"Deserializes a pickle stream and can execute code during object reconstruction.","safe_pattern":"Use a data-only format such as JSON when the payload is not fully trusted."},
+  "c.std.system.a0": {"summary":"Passes a string to the system command processor; shell metacharacters make the boundary especially sensitive.","safe_pattern":"Avoid shell parsing; use a direct process API and fixed arguments."},
+  "javascript.shell-quote.quote.a0-ret": {"summary":"Quotes a shell argument for a specific shell grammar. This is a sanitizer, not proof that the overall command is safe.","safe_pattern":"Prefer removing the shell boundary entirely; quote only as a constrained compatibility measure."}
+}
