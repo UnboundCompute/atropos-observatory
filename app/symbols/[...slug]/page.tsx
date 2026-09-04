@@ -26,7 +26,8 @@ export default async function SymbolPage({ params }: { params: Promise<{ slug: s
   if (!entry) notFound();
   const notes = facts.map((fact) => editorialRecords[fact.id]).filter(Boolean);
   const reviewed = notes.length > 0;
-  const summary = notes.find((note) => note?.summary) || { summary: 'Generated Atropos model fact. No editorial overlay is attached to this record yet; treat the fields below as model evidence, not a safety conclusion.' };
+  const roleContext = entry.role === 'sink' ? 'This operation receives data at a security-sensitive boundary; inspect the access path and validate whether the value is constrained before use.' : entry.role === 'source' ? 'This access path introduces data into the analysis; trace where the value travels before it reaches a sensitive operation.' : entry.role === 'sanitizer' ? 'This transformation is modeled as constraining data under stated conditions; verify those conditions hold in the calling code.' : 'This record describes data carried or transformed between access paths; use the model facts to trace the boundary in context.';
+  const summary = notes.find((note) => note?.summary) || { summary: `Generated Atropos model fact. ${roleContext} No editorial overlay is attached to this record yet; treat the fields below as model evidence, not a safety conclusion.` };
   const safePattern = notes.find((note) => note?.safe_pattern);
   const examples = notes.find((note) => note?.unsafe_example || note?.safe_example);
   const references = [...new Set(notes.flatMap((note) => note?.references || []))];
