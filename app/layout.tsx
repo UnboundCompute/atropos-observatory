@@ -7,7 +7,7 @@ const plexSans = IBM_Plex_Sans({ subsets: ['latin'], variable: '--font-plex-sans
 const plexMono = IBM_Plex_Mono({ weight: ['400', '500'], subsets: ['latin'], variable: '--font-plex-mono', display: 'swap' });
 const sourceSerif = Source_Serif_4({ subsets: ['latin'], variable: '--font-source-serif', display: 'swap' });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://atropos.unboundcompute.com';
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://atropos.unboundcompute.com').replace(/\/+$/, '');
 export const metadata: Metadata = { metadataBase: new URL(siteUrl), title: 'Atropos Observatory — Security Semantics Index', description: 'Search exact source, sink, sanitizer, and summary facts from the Atropos model pack.', openGraph: { type: 'website', siteName: 'Atropos Observatory', title: 'Atropos Observatory — Security Semantics Index', description: 'Search exact security semantics from the Atropos model pack.', url: siteUrl }, twitter: { card: 'summary', title: 'Atropos Observatory — Security Semantics Index', description: 'Search exact security semantics from the Atropos model pack.' } };
 const structuredData = { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Atropos Observatory', url: siteUrl, description: 'Searchable security semantics index for the Atropos model pack.', potentialAction: { '@type': 'SearchAction', target: `${siteUrl}/browse?q={search_term_string}`, 'query-input': 'required name=search_term_string' } };
 

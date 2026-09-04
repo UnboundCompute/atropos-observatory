@@ -5,7 +5,7 @@ import editorial from '../content/editorial.json';
 export const dynamic = 'force-static';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || 'https://atropos.unboundcompute.com';
+  const base = (process.env.NEXT_PUBLIC_SITE_URL || 'https://atropos.unboundcompute.com').replace(/\/+$/, '');
   const languages = [...new Set(catalog.map((entry) => entry.language))].map((value) => ({ url: `${base}/browse/language/${value}`, changeFrequency: 'weekly' as const, priority: 0.5 }));
   const roles = [...new Set(catalog.map((entry) => entry.role))].map((value) => ({ url: `${base}/browse/${value}`, changeFrequency: 'weekly' as const, priority: 0.6 }));
   const kinds = [...new Set(catalog.map((entry) => entry.kind))].map((value) => ({ url: `${base}/browse/kind/${value}`, changeFrequency: 'weekly' as const, priority: 0.4 }));
