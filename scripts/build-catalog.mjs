@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = path.resolve(process.env.ATROPOS_ROOT || '../atropos');
+const pack = JSON.parse(fs.readFileSync(path.join(root, 'pack.json'), 'utf8'));
 const files = fs.readdirSync(path.join(root, 'models'), { recursive: true }).filter((f) => f.endsWith('.json'));
 const entries = files.flatMap((file) => {
   const parsed = JSON.parse(fs.readFileSync(path.join(root, 'models', file), 'utf8'));
@@ -21,5 +22,5 @@ fs.writeFileSync(path.join(out, 'catalog.json'), JSON.stringify(catalog));
 const searchIndex = catalog.map(({ id, language, package: pkg, type, method, role, kind, access_path, slug }) => ({ id, language, package: pkg, type, method, role, kind, access_path, slug }));
 fs.writeFileSync(path.join(out, 'search-index.json'), JSON.stringify(searchIndex));
 fs.writeFileSync(path.join(publicGenerated, 'search-index.json'), JSON.stringify(searchIndex));
-fs.writeFileSync(path.join(out, 'stats.json'), JSON.stringify({ total: catalog.length, symbols: new Set(catalog.map((e) => `${e.language}:${e.package}:${e.type}:${e.method}`)).size, languages: [...new Set(catalog.map((e) => e.language))], version: '1.10.0' }));
+fs.writeFileSync(path.join(out, 'stats.json'), JSON.stringify({ total: catalog.length, symbols: new Set(catalog.map((e) => `${e.language}:${e.package}:${e.type}:${e.method}`)).size, languages: [...new Set(catalog.map((e) => e.language))], version: pack.version }));
 console.log(`Atropos Observatory: generated ${catalog.length} facts from ${root}`);
