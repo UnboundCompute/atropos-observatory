@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-type Item = { id: string; language: string; package?: string; type?: string; method: string; role: string; kind: string; slug: string };
+type Item = { id: string; language: string; package?: string; type?: string; method: string; role: string; kind: string; access_path?: string; slug: string };
 
 export default function Search() {
   const [query, setQuery] = useState('');
@@ -42,7 +42,7 @@ export default function Search() {
   };
 
   const results = query.trim().length > 1
-    ? items.filter((entry) => `${entry.method} ${entry.package || ''} ${entry.language} ${entry.role} ${entry.kind}`.toLowerCase().includes(query.toLowerCase())).slice(0, 8)
+    ? items.filter((entry) => `${entry.method} ${entry.package || ''} ${entry.access_path || ''} ${entry.language} ${entry.role} ${entry.kind}`.toLowerCase().includes(query.toLowerCase())).slice(0, 8)
     : [];
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
