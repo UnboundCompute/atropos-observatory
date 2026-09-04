@@ -33,7 +33,10 @@ export default function Search() {
         if (!response.ok) throw new Error(`Search index returned ${response.status}`);
         return response.json();
       })
-      .then((data) => { setItems(data); setLoaded(true); })
+      .then((data) => {
+        if (!Array.isArray(data) || data.some((entry) => !entry || typeof entry.id !== 'string' || typeof entry.slug !== 'string' || typeof entry.method !== 'string')) throw new Error('Search index has an invalid shape');
+        setItems(data); setLoaded(true);
+      })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   };
