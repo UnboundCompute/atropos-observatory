@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+
+const catalog = JSON.parse(fs.readFileSync('.generated/catalog.json', 'utf8'));
+const bySlug = new Map();
+for (const entry of catalog) {
+  const rows = bySlug.get(entry.slug) || [];
+  rows.push(entry);
+  bySlug.set(entry.slug, rows);
+}
+const errors = [];
+for (const [slug, rows] of bySlug) {
+  const symbols = new Set(rows.map((entry) => [entry.language, entry.package || 'stdlib', entry.type || 'global', entry.method].join('\u0000')));
+  if (symbols.size > 1) errors.push(`${slug}: collides across ${symbols.size} distinct symbols`);
+}
+if (errors.length) { console.error(errors.join('\n')); process.exit(1); }
+console.log(`Catalog check: ${catalog.length} facts grouped into ${bySlug.size} collision-safe symbol routes`);
