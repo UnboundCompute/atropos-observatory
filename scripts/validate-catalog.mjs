@@ -8,6 +8,10 @@ if (pack.format !== 'atropos-model-pack') {
   console.error(`Unexpected model pack format: ${pack.format || 'missing'}`);
   process.exit(1);
 }
+if (pack.schema_version !== 2) {
+  console.error(`Unsupported model pack schema version: ${pack.schema_version ?? 'missing'}`);
+  process.exit(1);
+}
 if (typeof pack.version !== 'string' || !pack.version.trim()) {
   console.error('Model pack is missing a usable version');
   process.exit(1);
