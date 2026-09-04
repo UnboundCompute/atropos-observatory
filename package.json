@@ -1,7 +1,12 @@
 {
   "name": "atropos-observatory",
-  "private": true,
   "version": "0.1.0",
+  "description": "A searchable, human-readable security reference for Atropos model semantics.",
+  "keywords": ["security", "static-analysis", "taint-analysis", "vulnerability-research", "api-security", "atropos", "observatory"],
+  "homepage": "https://atropos.unboundcompute.com",
+  "repository": { "type": "git", "url": "https://github.com/UnboundCompute/atropos-observatory.git" },
+  "bugs": { "url": "https://github.com/UnboundCompute/atropos-observatory/issues" },
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "prepare:data": "node scripts/build-catalog.mjs",

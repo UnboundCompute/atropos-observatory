@@ -47,7 +47,7 @@ export default function Search() {
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') { setQuery(''); setActive(-1); return; }
-    if (event.key === 'Enter' && query.trim().length > 1 && active < 0) { event.preventDefault(); router.push(`/browse?q=${encodeURIComponent(query.trim())}`); return; }
+    if (event.key === 'Enter' && query.trim().length > 1 && active < 0) { event.preventDefault(); router.push(`/search?q=${encodeURIComponent(query.trim())}`); return; }
     if (!results.length) return;
     if (event.key === 'ArrowDown') { event.preventDefault(); setActive((index) => Math.min(index + 1, results.length - 1)); }
     if (event.key === 'ArrowUp') { event.preventDefault(); setActive((index) => index < 0 ? results.length - 1 : Math.max(index - 1, 0)); }

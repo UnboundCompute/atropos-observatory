@@ -4,4 +4,6 @@ out
 .generated
 *.log
 *.tsbuildinfo
-.impeccable/review/
+.impeccable/
+.DS_Store
+*.zip

