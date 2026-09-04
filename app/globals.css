@@ -118,6 +118,20 @@ h1, h2 { font-family: var(--serif); font-weight: 600; }
 .taxonomy-links a:hover { color: var(--red); }
 .taxonomy-links b { color: var(--ink); font-weight: 400; }
 .taxonomy-note { color: var(--muted); font-family: var(--serif); line-height: 1.5; }
+.guide-intro { padding-bottom: 58px; }
+.guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10vw; padding: 0 0 110px; border-top: 1px solid var(--ink); }
+.guide-grid h2, .guide-note h2 { margin: 22px 0 20px; font-size: 28px; }
+.glossary { margin: 0; border-top: 1px solid var(--rule); }
+.glossary div { padding: 15px 0; border-bottom: 1px solid var(--rule); }
+.glossary dt { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+.glossary dd { max-width: 520px; margin: 7px 0 0; color: var(--muted); font-family: var(--serif); line-height: 1.5; }
+.guide-steps { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--rule); counter-reset: guide; }
+.guide-steps li { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 15px 0; border-bottom: 1px solid var(--rule); counter-increment: guide; }
+.guide-steps li::before { content: counter(guide, decimal-leading-zero); color: var(--red); font: 500 11px var(--mono); }
+.guide-steps strong { display: block; font-size: 13px; }
+.guide-steps span { display: block; margin-top: 5px; color: var(--muted); font-family: var(--serif); line-height: 1.5; }
+.guide-note { padding: 0 0 120px; border-top: 1px solid var(--ink); }
+.guide-note p { max-width: 760px; color: var(--muted); font: 18px/1.6 var(--serif); }
 .facet-explorer { padding: 0 0 96px; border-top: 1px solid var(--ink); }
 .facet-count { color: var(--muted); font: 12px var(--mono); }
 .facet-controls { display: grid; grid-template-columns: repeat(3, 1fr) 1.6fr; gap: 16px; margin-bottom: 28px; }
@@ -203,6 +217,8 @@ footer { width: min(calc(100% - 48px), 1240px); margin: 0 auto; padding: 24px 0 
   .role-directory { display: block; margin-bottom: 90px; }
   .taxonomy { display: block; padding-bottom: 80px; }
   .taxonomy > div + div { margin-top: 48px; }
+  .guide-grid { display: block; padding-bottom: 72px; }
+  .guide-grid > div + div { margin-top: 48px; }
   .facet-explorer { padding-bottom: 72px; }
   .facet-controls { grid-template-columns: 1fr 1fr; }
   .facet-query { grid-column: 1 / -1; }
