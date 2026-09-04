@@ -197,7 +197,7 @@ h1, h2 { font-family: var(--serif); font-weight: 600; }
 .detail dd { margin: 4px 0 0; font: 500 12px 'IBM Plex Mono', monospace; }
 .button { display: flex; justify-content: space-between; align-items: center; padding: 13px 0; color: var(--red); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); font: 500 11px 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .05em; }
 .button span { display: none; }
-.detail-footer { display: flex; justify-content: space-between; margin-top: 90px; padding-top: 18px; border-top: 1px solid var(--ink); color: var(--muted); font-size: 12px; }
+.detail-footer { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; margin-top: 90px; padding-top: 18px; border-top: 1px solid var(--ink); color: var(--muted); font-size: 12px; }
 .detail-footer a:hover { color: var(--red); }
 
 footer { width: min(calc(100% - 48px), 1240px); margin: 0 auto; padding: 24px 0 44px; display: flex; justify-content: space-between; color: var(--muted); border-top: 1px solid var(--ink); font: 10px 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .05em; }
