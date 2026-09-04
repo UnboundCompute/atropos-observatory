@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import catalog from '../../../.generated/catalog.json';
 
 export function generateStaticParams() { return [...new Set(catalog.map((entry) => entry.role))].map((role) => ({ role })); }
+export async function generateMetadata({ params }: { params: Promise<{ role: string }> }): Promise<Metadata> { const { role } = await params; return { title: `${role} register — Atropos Observatory`, description: `Browse Atropos model facts classified as ${role}, with access paths and source provenance.` }; }
 
 export default async function RolePage({ params }: { params: Promise<{ role: string }> }) {
   const { role } = await params;
