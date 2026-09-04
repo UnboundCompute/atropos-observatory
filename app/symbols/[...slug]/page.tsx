@@ -26,7 +26,7 @@ export default async function SymbolPage({ params }: { params: Promise<{ slug: s
   const entry = facts[0];
   if (!entry) return <main><section className="catalog-intro"><h1>No matching fact.</h1><Link className="text-link" href="/browse">Return to index</Link></section></main>;
   const notes = facts.map((fact) => editorialRecords[fact.id]).filter(Boolean);
-  const summary = notes.find((note) => note?.summary);
+  const summary = notes.find((note) => note?.summary) || { summary: 'Generated Atropos model fact. No editorial overlay is attached to this record yet; treat the fields below as model evidence, not a safety conclusion.' };
   const safePattern = notes.find((note) => note?.safe_pattern);
   const examples = notes.find((note) => note?.unsafe_example || note?.safe_example);
   const references = [...new Set(notes.flatMap((note) => note?.references || []))];
