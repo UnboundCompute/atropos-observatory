@@ -133,6 +133,12 @@ h1, h2 { font-family: var(--serif); font-weight: 600; }
 .guide-steps span { display: block; margin-top: 5px; color: var(--muted); font-family: var(--serif); line-height: 1.5; }
 .guide-note { padding: 0 0 120px; border-top: 1px solid var(--ink); }
 .guide-note p { max-width: 760px; color: var(--muted); font: 18px/1.6 var(--serif); }
+.coverage-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; padding: 0 0 110px; border-top: 1px solid var(--ink); }
+.coverage-stats > div { padding-top: 18px; border-bottom: 1px solid var(--rule); }
+.coverage-stats span { color: var(--muted); font: 500 10px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+.coverage-stats strong { display: block; margin: 18px 0 10px; font: 500 38px var(--mono); }
+.coverage-stats strong small { color: var(--muted); font-size: 14px; }
+.coverage-stats p { min-height: 44px; color: var(--muted); font: 15px/1.45 var(--serif); }
 .facet-explorer { padding: 0 0 96px; border-top: 1px solid var(--ink); }
 .facet-count { color: var(--muted); font: 12px var(--mono); }
 .facet-controls { display: grid; grid-template-columns: repeat(3, 1fr) 1.6fr; gap: 16px; margin-bottom: 28px; }
@@ -220,6 +226,8 @@ footer { width: min(calc(100% - 48px), 1240px); margin: 0 auto; padding: 24px 0 
   .taxonomy > div + div { margin-top: 48px; }
   .guide-grid { display: block; padding-bottom: 72px; }
   .guide-grid > div + div { margin-top: 48px; }
+  .coverage-stats { display: block; padding-bottom: 72px; }
+  .coverage-stats > div + div { margin-top: 30px; }
   .facet-explorer { padding-bottom: 72px; }
   .facet-controls { grid-template-columns: 1fr 1fr; }
   .facet-query { grid-column: 1 / -1; }

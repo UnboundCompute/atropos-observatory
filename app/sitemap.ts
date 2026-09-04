@@ -14,5 +14,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     if (!facts.some((fact) => editorial[fact.id as keyof typeof editorial])) return [];
     return [{ url: `${base}/symbols/${slug}`, changeFrequency: 'weekly' as const, priority: 0.7 }];
   });
-  return [{ url: base, changeFrequency: 'weekly', priority: 1 }, { url: `${base}/browse`, changeFrequency: 'weekly', priority: 0.8 }, { url: `${base}/guide`, changeFrequency: 'monthly', priority: 0.7 }, ...languages, ...kinds, ...cwes, ...symbols];
+  return [{ url: base, changeFrequency: 'weekly', priority: 1 }, { url: `${base}/browse`, changeFrequency: 'weekly', priority: 0.8 }, { url: `${base}/guide`, changeFrequency: 'monthly', priority: 0.7 }, { url: `${base}/coverage`, changeFrequency: 'weekly', priority: 0.6 }, ...languages, ...kinds, ...cwes, ...symbols];
 }
