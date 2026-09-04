@@ -7,7 +7,21 @@ import editorial from '../content/editorial.json';
 
 export default function FacetExplorer() {
   const [role, setRole] = useState('all'); const [language, setLanguage] = useState('all'); const [kind, setKind] = useState('all'); const [cwe, setCwe] = useState('all'); const [status, setStatus] = useState('all'); const [query, setQuery] = useState(''); const [hydrated, setHydrated] = useState(false);
-  useEffect(() => { const params = new URLSearchParams(window.location.search); setRole(params.get('role') || 'all'); setLanguage(params.get('language') || 'all'); setKind(params.get('kind') || 'all'); setCwe(params.get('cwe') || 'all'); setStatus(params.get('status') || 'all'); setQuery(params.get('q') || ''); setHydrated(true); }, []);
+  useEffect(() => {
+    const applyUrlFilters = () => {
+      const params = new URLSearchParams(window.location.search);
+      setRole(params.get('role') || 'all');
+      setLanguage(params.get('language') || 'all');
+      setKind(params.get('kind') || 'all');
+      setCwe(params.get('cwe') || 'all');
+      setStatus(params.get('status') || 'all');
+      setQuery(params.get('q') || '');
+      setHydrated(true);
+    };
+    applyUrlFilters();
+    window.addEventListener('popstate', applyUrlFilters);
+    return () => window.removeEventListener('popstate', applyUrlFilters);
+  }, []);
   useEffect(() => { if (!hydrated) return; const params = new URLSearchParams(); if (role !== 'all') params.set('role', role); if (language !== 'all') params.set('language', language); if (kind !== 'all') params.set('kind', kind); if (cwe !== 'all') params.set('cwe', cwe); if (status !== 'all') params.set('status', status); if (query.trim()) params.set('q', query.trim()); window.history.replaceState(null, '', params.toString() ? `/browse?${params}` : '/browse'); }, [hydrated, role, language, kind, cwe, status, query]);
   const languages = useMemo(() => [...new Set(catalog.map((entry) => entry.language))].sort(), []); const kinds = useMemo(() => [...new Set(catalog.map((entry) => entry.kind))].sort(), []); const cwes = useMemo(() => [...new Set(catalog.flatMap((entry) => entry.cwe || []))].sort(), []);
   const rows = useMemo(() => catalog.filter((entry) => { const haystack = `${entry.method} ${entry.package || ''} ${entry.access_path || ''}`.toLowerCase(); const reviewed = Object.prototype.hasOwnProperty.call(editorial, entry.id); return (role === 'all' || entry.role === role) && (language === 'all' || entry.language === language) && (kind === 'all' || entry.kind === kind) && (cwe === 'all' || (entry.cwe || []).includes(cwe)) && (status === 'all' || (status === 'reviewed' ? reviewed : !reviewed)) && (!query.trim() || haystack.includes(query.toLowerCase())); }), [role, language, kind, cwe, status, query]);
