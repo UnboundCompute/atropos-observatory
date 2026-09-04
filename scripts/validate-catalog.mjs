@@ -4,6 +4,10 @@ import path from 'node:path';
 const catalog = JSON.parse(fs.readFileSync('.generated/catalog.json', 'utf8'));
 const atroposRoot = path.resolve(process.env.ATROPOS_ROOT || '../atropos');
 const pack = JSON.parse(fs.readFileSync(path.join(atroposRoot, 'pack.json'), 'utf8'));
+if (pack.format !== 'atropos-model-pack') {
+  console.error(`Unexpected model pack format: ${pack.format || 'missing'}`);
+  process.exit(1);
+}
 if (typeof pack.version !== 'string' || !pack.version.trim()) {
   console.error('Model pack is missing a usable version');
   process.exit(1);
