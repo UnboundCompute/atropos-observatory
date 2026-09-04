@@ -230,6 +230,7 @@ footer { width: min(calc(100% - 48px), 1240px); margin: 0 auto; padding: 24px 0 
   .role-directory { display: block; margin-bottom: 90px; }
   .taxonomy { display: block; padding-bottom: 80px; }
   .taxonomy > div + div { margin-top: 48px; }
+  .taxonomy-links a { min-height: 44px; align-items: center; }
   .guide-grid { display: block; padding-bottom: 72px; }
   .guide-grid > div + div { margin-top: 48px; }
   .coverage-stats { display: block; padding-bottom: 72px; }
