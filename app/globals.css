@@ -143,6 +143,8 @@ h1, h2 { font-family: var(--serif); font-weight: 600; }
 .coverage-stats p { min-height: 44px; color: var(--muted); font: 15px/1.45 var(--serif); }
 .facet-explorer { padding: 0 0 96px; border-top: 1px solid var(--ink); }
 .facet-count { color: var(--muted); font: 12px var(--mono); }
+.facet-summary { display: flex; align-items: center; gap: 18px; }
+.facet-clear { border: 0; border-bottom: 1px solid currentColor; padding: 0 0 3px; background: transparent; color: var(--red); font: 500 10px var(--mono); text-transform: uppercase; letter-spacing: .06em; cursor: pointer; }
 .facet-controls { display: grid; grid-template-columns: repeat(4, 1fr) 1.6fr; gap: 16px; margin-bottom: 28px; }
 .facet-controls label { display: grid; gap: 8px; color: var(--muted); font: 500 10px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
 .facet-controls select, .facet-controls input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--rule-dark); border-radius: 0; background: var(--paper-raised); color: var(--ink); font: 13px var(--sans); }
