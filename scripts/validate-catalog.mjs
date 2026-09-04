@@ -7,7 +7,7 @@ if (!fs.existsSync(searchIndexPath)) {
   process.exit(1);
 }
 const searchIndex = JSON.parse(fs.readFileSync(searchIndexPath, 'utf8'));
-if (!Array.isArray(searchIndex) || searchIndex.length !== catalog.length || searchIndex.some((entry) => !entry.id || !entry.slug || !entry.method)) {
+if (!Array.isArray(searchIndex) || searchIndex.length !== catalog.length || searchIndex.some((entry, index) => !entry || !entry.id || !entry.slug || !entry.method || entry.id !== catalog[index]?.id || entry.slug !== catalog[index]?.slug)) {
   console.error(`${searchIndexPath} is missing required records or is out of sync with the catalog`);
   process.exit(1);
 }
