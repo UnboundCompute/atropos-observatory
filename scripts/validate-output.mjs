@@ -18,8 +18,10 @@ const walk = (directory) => {
 walk(root);
 
 const links = new Set();
+const missingCanonical = [];
 for (const file of htmlFiles) {
   const html = fs.readFileSync(file, 'utf8');
+  if (!file.endsWith(`${path.sep}404${path.sep}index.html`) && !file.endsWith(`${path.sep}_not-found${path.sep}index.html`) && !html.includes('<link rel="canonical"')) missingCanonical.push(file);
   for (const match of html.matchAll(/href="(\/[^"#?]*)/g)) links.add(match[1]);
 }
 
@@ -29,8 +31,9 @@ const missing = [...links].filter((href) => href !== '/' && ![
   path.join(root, `${href}.html`),
 ].some(fs.existsSync));
 
-if (missing.length) {
-  console.error(`Output contains ${missing.length} broken internal links:\n${missing.join('\n')}`);
+if (missing.length || missingCanonical.length) {
+  if (missing.length) console.error(`Output contains ${missing.length} broken internal links:\n${missing.join('\n')}`);
+  if (missingCanonical.length) console.error(`Output contains ${missingCanonical.length} index pages without canonical tags:\n${missingCanonical.join('\n')}`);
   process.exit(1);
 }
-console.log(`Output check: ${htmlFiles.length} HTML pages and ${links.size} internal links verified`);
+console.log(`Output check: ${htmlFiles.length} HTML pages, ${links.size} internal links, and canonical tags verified`);
