@@ -1,9 +1,23 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const catalog = JSON.parse(fs.readFileSync('.generated/catalog.json', 'utf8'));
+const stats = JSON.parse(fs.readFileSync('.generated/stats.json', 'utf8'));
 const atroposRoot = path.resolve(process.env.ATROPOS_ROOT || '../atropos');
 const pack = JSON.parse(fs.readFileSync(path.join(atroposRoot, 'pack.json'), 'utf8'));
+const sourceRevision = (() => {
+  try { return execFileSync('git', ['-C', atroposRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); } catch { return ''; }
+})();
+if (!/^[0-9a-f]{40}$/i.test(stats.source_revision) || stats.source_revision !== sourceRevision) {
+  console.error('Generated source revision is missing or does not match the Atropos checkout; run the data preparation step again');
+  process.exit(1);
+}
+const missingSources = catalog.filter((entry) => !entry.source_file || !fs.existsSync(path.join(atroposRoot, 'models', entry.source_file)));
+if (missingSources.length) {
+  console.error(`Catalog contains ${missingSources.length} source file path(s) missing from the ingested Atropos checkout`);
+  process.exit(1);
+}
 if (pack.format !== 'atropos-model-pack') {
   console.error(`Unexpected model pack format: ${pack.format || 'missing'}`);
   process.exit(1);

@@ -1,9 +1,21 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const root = path.resolve(process.env.ATROPOS_ROOT || '../atropos');
 if (!fs.existsSync(path.join(root, 'pack.json')) || !fs.existsSync(path.join(root, 'models'))) {
   console.error(`Atropos checkout not found or incomplete at ${root}; set ATROPOS_ROOT to a valid checkout`);
+  process.exit(1);
+}
+let sourceRevision;
+try {
+  sourceRevision = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+} catch {
+  console.error(`Atropos checkout at ${root} is not a git repository; an immutable source revision is required`);
+  process.exit(1);
+}
+if (!/^[0-9a-f]{40}$/i.test(sourceRevision)) {
+  console.error(`Could not determine a valid Atropos source revision from ${root}`);
   process.exit(1);
 }
 const pack = JSON.parse(fs.readFileSync(path.join(root, 'pack.json'), 'utf8'));
@@ -26,5 +38,5 @@ fs.writeFileSync(path.join(out, 'catalog.json'), JSON.stringify(catalog));
 const searchIndex = catalog.map(({ id, language, package: pkg, type, method, role, kind, access_path, slug }) => ({ id, language, package: pkg, type, method, role, kind, access_path, slug }));
 fs.writeFileSync(path.join(out, 'search-index.json'), JSON.stringify(searchIndex));
 fs.writeFileSync(path.join(publicGenerated, 'search-index.json'), JSON.stringify(searchIndex));
-fs.writeFileSync(path.join(out, 'stats.json'), JSON.stringify({ total: catalog.length, symbols: new Set(catalog.map((e) => `${e.language}:${e.package}:${e.type}:${e.method}`)).size, languages: [...new Set(catalog.map((e) => e.language))], version: pack.version }));
+fs.writeFileSync(path.join(out, 'stats.json'), JSON.stringify({ total: catalog.length, symbols: new Set(catalog.map((e) => `${e.language}:${e.package}:${e.type}:${e.method}`)).size, languages: [...new Set(catalog.map((e) => e.language))], version: pack.version, source_revision: sourceRevision }));
 console.log(`Atropos Observatory: generated ${catalog.length} facts from ${root}`);
