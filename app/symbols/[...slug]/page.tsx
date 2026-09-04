@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import catalog from '../../../.generated/catalog.json';
 import editorial from '../../../content/editorial.json';
 import editorialMeta from '../../../content/editorial-meta.json';
@@ -22,7 +23,7 @@ export default async function SymbolPage({ params }: { params: Promise<{ slug: s
   const key = (await params).slug.join('/');
   const facts = catalog.filter((item) => item.slug === key);
   const entry = facts[0];
-  if (!entry) return <main><section className="catalog-intro"><h1>No matching fact.</h1><Link className="text-link" href="/browse">Return to index</Link></section></main>;
+  if (!entry) notFound();
   const notes = facts.map((fact) => editorialRecords[fact.id]).filter(Boolean);
   const reviewed = notes.length > 0;
   const summary = notes.find((note) => note?.summary) || { summary: 'Generated Atropos model fact. No editorial overlay is attached to this record yet; treat the fields below as model evidence, not a safety conclusion.' };
