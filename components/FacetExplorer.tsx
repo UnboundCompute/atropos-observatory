@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import catalog from '../.generated/catalog.json';
 
 export default function FacetExplorer() {
@@ -9,6 +9,16 @@ export default function FacetExplorer() {
   const [language, setLanguage] = useState('all');
   const [kind, setKind] = useState('all');
   const [query, setQuery] = useState('');
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setRole(params.get('role') || 'all'); setLanguage(params.get('language') || 'all'); setKind(params.get('kind') || 'all'); setQuery(params.get('q') || '');
+  }, []);
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (role !== 'all') params.set('role', role); if (language !== 'all') params.set('language', language); if (kind !== 'all') params.set('kind', kind); if (query.trim()) params.set('q', query.trim());
+    const next = params.toString();
+    window.history.replaceState(null, '', next ? `/browse?${next}` : '/browse');
+  }, [role, language, kind, query]);
   const languages = useMemo(() => [...new Set(catalog.map((entry) => entry.language))].sort(), []);
   const kinds = useMemo(() => [...new Set(catalog.map((entry) => entry.kind))].sort(), []);
   const rows = useMemo(() => catalog.filter((entry) => {
