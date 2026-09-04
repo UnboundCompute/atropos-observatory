@@ -8,7 +8,10 @@ const ids = new Set(files.flatMap((file) => {
   return (Array.isArray(parsed) ? parsed : (parsed.entries || [])).map((entry) => entry.id);
 }));
 const editorial = JSON.parse(fs.readFileSync('content/editorial.json', 'utf8'));
+const editorialMeta = JSON.parse(fs.readFileSync('content/editorial-meta.json', 'utf8'));
 const errors = [];
+if (!/^\d{4}-\d{2}-\d{2}$/.test(editorialMeta.reviewed_at || '')) errors.push('editorial-meta: reviewed_at must be YYYY-MM-DD');
+if (!editorialMeta.applies_to?.trim()) errors.push('editorial-meta: applies_to is required');
 for (const [id, record] of Object.entries(editorial)) {
   if (!ids.has(id)) errors.push(`${id}: not found in Atropos model pack`);
   if (!record.summary?.trim()) errors.push(`${id}: summary is required`);

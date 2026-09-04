@@ -11,4 +11,6 @@ Supported fields:
 - `references`: authoritative documentation or CWE links
 - `reviewed_at` / `applies_to`: editorial maintenance metadata
 
+Repository-wide maintenance metadata lives in `content/editorial-meta.json` and is shown on every reviewed symbol page.
+
 Run `npm run check:content` before publishing. It verifies every editorial key exists in the current sibling Atropos checkout, that each curated record has summary, safer guidance, paired examples, and at least one reference, and that reference URLs are valid.
