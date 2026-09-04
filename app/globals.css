@@ -118,6 +118,13 @@ h1, h2 { font-family: var(--serif); font-weight: 600; }
 .taxonomy-links a:hover { color: var(--red); }
 .taxonomy-links b { color: var(--ink); font-weight: 400; }
 .taxonomy-note { color: var(--muted); font-family: var(--serif); line-height: 1.5; }
+.facet-explorer { padding: 0 0 96px; border-top: 1px solid var(--ink); }
+.facet-count { color: var(--muted); font: 12px var(--mono); }
+.facet-controls { display: grid; grid-template-columns: repeat(3, 1fr) 1.6fr; gap: 16px; margin-bottom: 28px; }
+.facet-controls label { display: grid; gap: 8px; color: var(--muted); font: 500 10px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+.facet-controls select, .facet-controls input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--rule-dark); border-radius: 0; background: var(--paper-raised); color: var(--ink); font: 13px var(--sans); }
+.facet-controls select:focus, .facet-controls input:focus { outline: 2px solid var(--focus); outline-offset: 2px; }
+.facet-results { max-height: 680px; overflow: auto; }
 
 .detail { padding: 58px 0 120px; }
 .crumb { display: flex; gap: 10px; align-items: center; margin-bottom: 76px; color: var(--muted); font: 11px 'IBM Plex Mono', monospace; }
@@ -187,6 +194,9 @@ footer { width: min(calc(100% - 48px), 1240px); margin: 0 auto; padding: 24px 0 
   .role-directory { display: block; margin-bottom: 90px; }
   .taxonomy { display: block; padding-bottom: 80px; }
   .taxonomy > div + div { margin-top: 48px; }
+  .facet-explorer { padding-bottom: 72px; }
+  .facet-controls { grid-template-columns: 1fr 1fr; }
+  .facet-query { grid-column: 1 / -1; }
   .role-directory > a, .role-directory > a:nth-child(odd), .role-directory > a:nth-child(even) { display: block; min-height: 0; padding: 25px 0; border-right: 0; }
   .role-directory strong { margin-top: 20px; }
   .detail { padding-top: 38px; }
