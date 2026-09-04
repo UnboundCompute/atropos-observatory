@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import catalog from '../../../../.generated/catalog.json';
 
 export function generateStaticParams() { return [...new Set(catalog.flatMap((entry) => entry.cwe || []))].map((cwe) => ({ cwe })); }
+export async function generateMetadata({ params }: { params: Promise<{ cwe: string }> }): Promise<Metadata> { const { cwe } = await params; return { title: `${cwe} model facts — Atropos Observatory`, description: `Browse Atropos security semantics mapped to ${cwe}, with source IDs and role classifications.` }; }
 export default async function CwePage({ params }: { params: Promise<{ cwe: string }> }) {
   const { cwe } = await params;
   const rows = catalog.filter((entry) => (entry.cwe || []).includes(cwe));

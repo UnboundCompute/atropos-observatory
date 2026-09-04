@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import catalog from '../../../../.generated/catalog.json';
 
 export function generateStaticParams() { return [...new Set(catalog.map((entry) => entry.kind))].map((kind) => ({ kind })); }
+export async function generateMetadata({ params }: { params: Promise<{ kind: string }> }): Promise<Metadata> { const { kind } = await params; return { title: `${kind} behavior facts — Atropos Observatory`, description: `Browse Atropos model facts classified as ${kind}, with access paths and provenance.` }; }
 export default async function KindPage({ params }: { params: Promise<{ kind: string }> }) {
   const { kind } = await params;
   const rows = catalog.filter((entry) => entry.kind === kind);

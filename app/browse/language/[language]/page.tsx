@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import catalog from '../../../../.generated/catalog.json';
 
 export function generateStaticParams() { return [...new Set(catalog.map((entry) => entry.language))].map((language) => ({ language })); }
+export async function generateMetadata({ params }: { params: Promise<{ language: string }> }): Promise<Metadata> { const { language } = await params; return { title: `${language} model facts — Atropos Observatory`, description: `Browse Atropos security semantics modeled for ${language}, with source paths and role classifications.` }; }
 export default async function LanguagePage({ params }: { params: Promise<{ language: string }> }) {
   const { language } = await params;
   const rows = catalog.filter((entry) => entry.language === language);
