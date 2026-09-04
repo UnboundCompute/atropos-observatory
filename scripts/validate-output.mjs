@@ -21,7 +21,7 @@ const links = new Set();
 const missingCanonical = [];
 for (const file of htmlFiles) {
   const html = fs.readFileSync(file, 'utf8');
-  if (!file.endsWith(`${path.sep}404${path.sep}index.html`) && !file.endsWith(`${path.sep}_not-found${path.sep}index.html`) && !html.includes('<link rel="canonical"')) missingCanonical.push(file);
+  if (!file.endsWith(`${path.sep}404${path.sep}index.html`) && !file.endsWith(`${path.sep}_not-found${path.sep}index.html`) && !/<link rel="canonical" href="[^"]+"/.test(html)) missingCanonical.push(file);
   for (const match of html.matchAll(/href="(\/[^"#?]*)/g)) links.add(match[1]);
 }
 
