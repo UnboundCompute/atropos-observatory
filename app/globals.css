@@ -181,6 +181,10 @@ h1, h2 { font-family: var(--serif); font-weight: 600; }
 .fact-register th { padding: 9px 0; color: var(--muted); border-bottom: 1px solid var(--rule-dark); text-align: left; font: 500 9px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
 .fact-register td { padding: 13px 0; border-bottom: 1px solid var(--rule); color: var(--muted); font-size: 11px; vertical-align: top; }
 .fact-register td code { font: 10px/1.5 var(--mono); word-break: break-word; }
+.related { margin-top: 48px; border-top: 1px solid var(--ink); }
+.related h2 { margin: 18px 0; font-size: 25px; }
+.related > div { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 22px; }
+.related a { padding: 11px 0; border-top: 1px solid var(--rule); color: var(--red); font: 12px var(--mono); }
 .detail aside { align-self: start; padding-top: 15px; border-top: 1px solid var(--ink); }
 .detail dl { margin: 0 0 34px; }
 .detail dl div { display: contents; }
