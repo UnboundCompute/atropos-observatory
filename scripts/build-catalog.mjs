@@ -2,6 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = path.resolve(process.env.ATROPOS_ROOT || '../atropos');
+if (!fs.existsSync(path.join(root, 'pack.json')) || !fs.existsSync(path.join(root, 'models'))) {
+  console.error(`Atropos checkout not found or incomplete at ${root}; set ATROPOS_ROOT to a valid checkout`);
+  process.exit(1);
+}
 const pack = JSON.parse(fs.readFileSync(path.join(root, 'pack.json'), 'utf8'));
 const files = fs.readdirSync(path.join(root, 'models'), { recursive: true }).filter((f) => f.endsWith('.json'));
 const entries = files.flatMap((file) => {
