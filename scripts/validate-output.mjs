@@ -6,6 +6,11 @@ if (!fs.existsSync(root)) {
   console.error('Missing out/; run the static build first');
   process.exit(1);
 }
+const sitemapPath = path.join(root, 'sitemap.xml');
+if (!fs.existsSync(sitemapPath) || !fs.readFileSync(sitemapPath, 'utf8').includes('<urlset')) {
+  console.error('Static output is missing a valid sitemap.xml');
+  process.exit(1);
+}
 
 const htmlFiles = [];
 const walk = (directory) => {
