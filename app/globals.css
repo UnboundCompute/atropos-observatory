@@ -114,7 +114,7 @@ h1, h2 { font-family: var(--serif); font-weight: 600; }
 .role-directory p { max-width: 390px; color: var(--muted); font-family: 'Source Serif 4', serif; line-height: 1.5; }
 .open-label { color: var(--red); font: 500 10px 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .07em; border-bottom: 1px solid currentColor; }
 .catalog-table { margin-bottom: 120px; }
-.taxonomy { display: grid; grid-template-columns: 1fr 1fr .8fr; gap: 48px; padding: 0 0 120px; border-top: 1px solid var(--ink); }
+.taxonomy { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 0 0 120px; border-top: 1px solid var(--ink); }
 .taxonomy h2 { margin: 22px 0 18px; font-size: 25px; }
 .taxonomy-links { border-top: 1px solid var(--rule); }
 .taxonomy-links a { display: flex; justify-content: space-between; gap: 18px; padding: 10px 0; border-bottom: 1px solid var(--rule); color: var(--muted); font: 12px var(--mono); }
