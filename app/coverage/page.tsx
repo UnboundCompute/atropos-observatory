@@ -3,7 +3,7 @@ import catalog from '../../.generated/catalog.json';
 import editorial from '../../content/editorial.json';
 import stats from '../../.generated/stats.json';
 
-export const metadata = { title: 'Coverage — Atropos Observatory', description: 'How Atropos Observatory separates generated model coverage from curated editorial review.' };
+export const metadata = { title: 'Coverage — Atropos Observatory', description: 'How Atropos Observatory separates generated model coverage from curated editorial review.', alternates: { canonical: '/coverage' } };
 
 export default function Coverage() {
   const reviewedIds = new Set(Object.keys(editorial));
