@@ -2,6 +2,8 @@ import Link from 'next/link';
 import FacetExplorer from '../../components/FacetExplorer';
 import catalog from '../../.generated/catalog.json';
 
+export const metadata = { title: 'Browse the model register — Atropos Observatory', description: 'Filter Atropos security semantics by role, language, behavior, CWE, review status, and symbol path.', alternates: { canonical: '/browse' } };
+
 export default function Browse() {
   const roles = [...new Set(catalog.map((entry) => entry.role))];
   const languages = [...new Set(catalog.map((entry) => entry.language))];
