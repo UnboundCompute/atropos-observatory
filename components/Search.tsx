@@ -50,7 +50,7 @@ export default function Search() {
     if (event.key === 'Enter' && query.trim().length > 1 && active < 0) { event.preventDefault(); router.push(`/browse?q=${encodeURIComponent(query.trim())}`); return; }
     if (!results.length) return;
     if (event.key === 'ArrowDown') { event.preventDefault(); setActive((index) => Math.min(index + 1, results.length - 1)); }
-    if (event.key === 'ArrowUp') { event.preventDefault(); setActive((index) => Math.max(index - 1, 0)); }
+    if (event.key === 'ArrowUp') { event.preventDefault(); setActive((index) => index < 0 ? results.length - 1 : Math.max(index - 1, 0)); }
     if (event.key === 'Enter' && active >= 0) { event.preventDefault(); router.push(`/symbols/${results[active].slug}`); }
   };
 
