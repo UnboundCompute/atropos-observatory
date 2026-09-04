@@ -132,6 +132,11 @@ h1, h2 { font-family: var(--serif); font-weight: 600; }
 .detail-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(270px, .55fr); gap: 10vw; }
 .detail h1 { margin: 17px 0 6px; font: 600 clamp(48px, 7vw, 82px) 'Source Serif 4', serif; letter-spacing: -.035em; }
 .detail-sub { margin: 0; color: var(--muted); font: 14px 'IBM Plex Mono', monospace; }
+.authority { display: grid; gap: 4px; margin-top: 24px; padding: 13px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); font-size: 12px; }
+.authority strong { font: 500 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; }
+.authority span { color: var(--muted); }
+.authority-reviewed strong { color: var(--sanitizer); }
+.authority-model strong { color: var(--muted); }
 .callout, .fact-block { margin-top: 48px; padding-top: 15px; border-top: 1px solid var(--ink); }
 .callout span, .fact-block span, .aside-label { display: block; margin-bottom: 12px; color: var(--red); font: 500 10px 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .08em; }
 .callout.safe span { color: var(--sanitizer); }
@@ -149,6 +154,10 @@ h1, h2 { font-family: var(--serif); font-weight: 600; }
 .fact-register-head { padding: 9px 0; color: var(--muted); border-bottom: 1px solid var(--rule-dark); font: 500 9px 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .06em; }
 .fact-register-row { padding: 13px 0; border-bottom: 1px solid var(--rule); color: var(--muted); font-size: 11px; }
 .fact-register-row code { font: 10px/1.5 'IBM Plex Mono', monospace; word-break: break-word; }
+.fact-register table { width: 100%; border-collapse: collapse; }
+.fact-register th { padding: 9px 0; color: var(--muted); border-bottom: 1px solid var(--rule-dark); text-align: left; font: 500 9px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+.fact-register td { padding: 13px 0; border-bottom: 1px solid var(--rule); color: var(--muted); font-size: 11px; vertical-align: top; }
+.fact-register td code { font: 10px/1.5 var(--mono); word-break: break-word; }
 .detail aside { align-self: start; padding-top: 15px; border-top: 1px solid var(--ink); }
 .detail dl { margin: 0 0 34px; }
 .detail dl div { display: contents; }
@@ -207,6 +216,10 @@ footer { width: min(calc(100% - 48px), 1240px); margin: 0 auto; padding: 24px 0 
   .fact-register-head { display: none; }
   .fact-register-row { grid-template-columns: 1fr 1fr; }
   .fact-register-row code { grid-column: 1 / -1; }
+  .fact-register thead { display: none; }
+  .fact-register tr { display: block; padding: 9px 0; border-bottom: 1px solid var(--rule); }
+  .fact-register td { display: flex; justify-content: space-between; gap: 18px; padding: 5px 0; border: 0; }
+  .fact-register td::before { content: attr(data-label); color: var(--muted); font: 500 9px var(--mono); text-transform: uppercase; letter-spacing: .06em; }
   .detail-footer { gap: 24px; }
   footer { display: block; }
   footer span { display: block; margin-bottom: 8px; }
