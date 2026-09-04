@@ -11,6 +11,11 @@ if (!fs.existsSync(sitemapPath) || !fs.readFileSync(sitemapPath, 'utf8').include
   console.error('Static output is missing a valid sitemap.xml');
   process.exit(1);
 }
+const robotsPath = path.join(root, 'robots.txt');
+if (!fs.existsSync(robotsPath) || !fs.readFileSync(robotsPath, 'utf8').includes('Sitemap:')) {
+  console.error('Static output is missing a robots.txt sitemap directive');
+  process.exit(1);
+}
 
 const htmlFiles = [];
 const walk = (directory) => {
