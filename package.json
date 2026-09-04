@@ -7,7 +7,8 @@
     "prepare:data": "node scripts/build-catalog.mjs",
     "check:catalog": "node scripts/validate-catalog.mjs",
     "check:content": "node scripts/validate-editorial.mjs",
-    "build": "npm run prepare:data && npm run check:catalog && npm run check:content && next build",
+    "check:output": "node scripts/validate-output.mjs",
+    "build": "npm run prepare:data && npm run check:catalog && npm run check:content && next build && npm run check:output",
     "start": "next start",
     "lint": "tsc --noEmit"
   },
